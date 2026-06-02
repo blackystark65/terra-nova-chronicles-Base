@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Globe, Leaf, BookOpen, Trophy, User, Flame, X, LogOut, Calendar, Users, ChevronDown } from 'lucide-react';
+import schoolConfig from '@/config/school';
 
 export default function BiolumiHeader({ currentPage }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -65,8 +66,8 @@ export default function BiolumiHeader({ currentPage }) {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {/* Fond bleu Institut du Rosey */}
-        <div className="absolute inset-0 backdrop-blur-xl" style={{ backgroundColor: 'rgba(10, 30, 80, 0.95)' }} />
+        {/* Fond menu — couleur définie dans config/school.js */}
+        <div className="absolute inset-0 backdrop-blur-xl" style={{ backgroundColor: schoolConfig.colors.menuBg }} />
         
         {/* Reflet doré subtil */}
         <div className="absolute inset-0 bg-gradient-to-r from-yellow-600/5 via-transparent to-yellow-600/5" />
@@ -75,16 +76,16 @@ export default function BiolumiHeader({ currentPage }) {
           <div className="flex items-center justify-between gap-2">
             {/* Logo Institut du Rosey + Terra Nova */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              <a href="https://www.rosey.ch" target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+              {schoolConfig.logoUrl && (
                 <motion.img
                   whileHover={{ scale: 1.08 }}
-                  src="https://media.base44.com/images/public/6959886137576a65dcfe1370/386bb9e92_Institut_Le_Rosey_logo.png"
-                  alt="Institut du Rosey"
-                  title="Institut du Rosey"
+                  src={schoolConfig.logoUrl}
+                  alt={schoolConfig.name}
+                  title={schoolConfig.name}
                   style={{ height: '48px', width: 'auto', display: 'block', objectFit: 'contain' }}
                 />
-              </a>
-              <div className="h-6 w-px bg-white/20 flex-shrink-0" />
+              )}
+              {schoolConfig.logoUrl && <div className="h-6 w-px bg-white/20 flex-shrink-0" />}
               <Link to={createPageUrl('Home')}>
                 <motion.div
                   className="flex items-center gap-2 group cursor-pointer"
@@ -231,7 +232,7 @@ export default function BiolumiHeader({ currentPage }) {
               exit={{ opacity: 0, height: 0 }}
               className="md:hidden overflow-hidden"
             >
-              <div className="px-4 py-4 space-y-2 backdrop-blur-xl overflow-y-auto max-h-[80vh]" style={{ backgroundColor: 'rgba(10, 30, 80, 0.98)' }}>
+              <div className="px-4 py-4 space-y-2 backdrop-blur-xl overflow-y-auto max-h-[80vh]" style={{ backgroundColor: schoolConfig.colors.menuBg }}>
                 <Link to={createPageUrl('Profile')} onClick={() => setMobileMenuOpen(false)}>
                   <motion.div
                     whileTap={{ scale: 0.95 }}
@@ -305,7 +306,7 @@ export default function BiolumiHeader({ currentPage }) {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
             className="hidden md:flex fixed top-0 left-1/2 -translate-x-1/2 z-[55] items-center gap-2 px-4 py-1 rounded-b-xl cursor-pointer"
-            style={{ backgroundColor: 'rgba(10, 30, 80, 0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderTop: 'none' }}
+            style={{ backgroundColor: schoolConfig.colors.menuBg, backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderTop: 'none' }}
             onMouseEnter={handleMouseEnter}
           >
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
