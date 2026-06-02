@@ -243,7 +243,7 @@ export default function WasteCollectionZone({
                     whileHover={{ scale: 1.05 }}
                     className={`${bin.color} rounded-2xl p-4 text-white cursor-pointer`}
                     onClick={() => {
-                      if (selectedWaste && collectedWastes.includes(selectedWaste)) {
+                      if (selectedWaste) {
                         handleSortWaste(selectedWaste, key);
                       }
                     }}
