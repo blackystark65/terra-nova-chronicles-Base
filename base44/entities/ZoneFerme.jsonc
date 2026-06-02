@@ -1,0 +1,71 @@
+{
+  "name": "ZoneFerme",
+  "type": "object",
+  "properties": {
+    "nom": {
+      "type": "string",
+      "description": "Nom de la zone"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "centre_formation",
+        "milpa",
+        "permaculture",
+        "pepiniere",
+        "jouale",
+        "bocage",
+        "foret_jardin",
+        "boulangerie",
+        "epicerie",
+        "ferme_pedagogique",
+        "compost"
+      ],
+      "description": "Type de zone"
+    },
+    "plantes_cultivees": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "plante_id": {
+            "type": "string"
+          },
+          "date_semis": {
+            "type": "string"
+          },
+          "stade": {
+            "type": "string",
+            "enum": [
+              "seme",
+              "pousse",
+              "floraison",
+              "recolte",
+              "fini"
+            ]
+          }
+        }
+      },
+      "description": "Plantes actuellement cultiv\u00e9es"
+    },
+    "fertilite": {
+      "type": "number",
+      "default": 50,
+      "description": "Niveau de fertilit\u00e9 du sol (0-100)"
+    },
+    "humidite": {
+      "type": "number",
+      "default": 50,
+      "description": "Niveau d'humidit\u00e9 (0-100)"
+    },
+    "biodiversite_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Score de biodiversit\u00e9 de la zone"
+    }
+  },
+  "required": [
+    "nom",
+    "type"
+  ]
+}

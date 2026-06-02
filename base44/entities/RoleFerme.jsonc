@@ -1,0 +1,44 @@
+{
+  "name": "RoleFerme",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "maraicher",
+        "arboriste",
+        "boulanger",
+        "eleveur",
+        "epicier",
+        "jardinier_foret",
+        "horticulteur"
+      ],
+      "description": "R\u00f4le dans la micro-ferme"
+    },
+    "role_name": {
+      "type": "string",
+      "description": "Nom du r\u00f4le en fran\u00e7ais"
+    },
+    "zone_principale": {
+      "type": "string",
+      "description": "Zone de travail principale"
+    },
+    "classe_id": {
+      "type": "string",
+      "description": "ID de la classe \u00e0 laquelle appartient l'\u00e9l\u00e8ve"
+    },
+    "total_actions": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre total d'actions effectu\u00e9es"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "role",
+    "role_name"
+  ]
+}

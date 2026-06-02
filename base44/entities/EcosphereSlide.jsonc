@@ -1,0 +1,44 @@
+{
+  "name": "EcosphereSlide",
+  "type": "object",
+  "properties": {
+    "chapter": {
+      "type": "string",
+      "enum": [
+        "climat",
+        "eau",
+        "permaculture",
+        "agroecologie",
+        "agroforesterie",
+        "biodiversite_animale",
+        "biodiversite_vegetale",
+        "energie_renouvelable",
+        "techniques_cultures",
+        "sol_compostage",
+        "semences_graines"
+      ],
+      "description": "Chapitre auquel appartient cette planche"
+    },
+    "title": {
+      "type": "string",
+      "description": "Titre de la planche"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "URL de la photo / planche dessin\u00e9e"
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Ordre d'affichage dans le chapitre"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description ou l\u00e9gende optionnelle"
+    }
+  },
+  "required": [
+    "chapter",
+    "image_url"
+  ]
+}

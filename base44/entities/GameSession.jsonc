@@ -1,0 +1,59 @@
+{
+  "name": "GameSession",
+  "type": "object",
+  "properties": {
+    "player_role_id": {
+      "type": "string",
+      "description": "ID du r\u00f4le du joueur"
+    },
+    "current_zone": {
+      "type": "string",
+      "description": "Zone actuelle"
+    },
+    "current_day": {
+      "type": "number",
+      "default": 1,
+      "description": "Jour actuel"
+    },
+    "current_time_slot": {
+      "type": "number",
+      "default": 0,
+      "description": "Cr\u00e9neau horaire actuel (0-23)"
+    },
+    "total_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Score total du joueur"
+    },
+    "wastes_sorted_today": {
+      "type": "number",
+      "default": 0,
+      "description": "D\u00e9chets tri\u00e9s aujourd'hui"
+    },
+    "perfect_sorts": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre de tris parfaits"
+    },
+    "bins_emptied": {
+      "type": "number",
+      "default": 0,
+      "description": "Poubelles vid\u00e9es (nettoyeur)"
+    },
+    "trucks_sent": {
+      "type": "number",
+      "default": 0,
+      "description": "Camions envoy\u00e9s (responsable d\u00e9chetterie)"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "last_activity": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "player_role_id"
+  ]
+}

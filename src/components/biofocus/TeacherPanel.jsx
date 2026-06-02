@@ -134,7 +134,11 @@ export default function TeacherPanel({ sessions, user, onSessionCreated }) {
   };
 
   const handleAddToTeam = async (session, eleve, teamId) => {
-    const allMembers = [...(session.members_team1 || []), ...(session.members_team2 || [])];
+    // Relire la session fraîche pour éviter les doublons
+    const freshSessions = await base44.entities.BioFocusSession.filter({ id: session.id });
+    const fresh = freshSessions?.[0] || session;
+
+    const allMembers = [...(fresh.members_team1 || []), ...(fresh.members_team2 || [])];
     if (allMembers.some(m => m.eleve_numero === eleve.numero)) {
       setSearchError(`${eleve.prenom} ${eleve.nom} est déjà dans une équipe.`);
       return;
@@ -147,8 +151,8 @@ export default function TeacherPanel({ sessions, user, onSessionCreated }) {
       eco_profile_id: '',
     };
     const key = `members_${teamId}`;
-    const updated = [...(session[key] || []), newMember];
-    await base44.entities.BioFocusSession.update(session.id, { [key]: updated });
+    const updated = [...(fresh[key] || []), newMember];
+    await base44.entities.BioFocusSession.update(fresh.id, { [key]: updated });
     qc.invalidateQueries(['biofocus-sessions']);
     setSearchResults([]);
     setSearchQuery('');

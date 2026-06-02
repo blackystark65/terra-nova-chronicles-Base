@@ -1,0 +1,50 @@
+{
+  "name": "ClasseFerme",
+  "type": "object",
+  "properties": {
+    "nom_classe": {
+      "type": "string",
+      "description": "Nom de la classe (ex: 6\u00e8me A, CM2 B)"
+    },
+    "code_classe": {
+      "type": "string",
+      "description": "Code unique de la classe"
+    },
+    "niveau": {
+      "type": "string",
+      "enum": [
+        "juniors",
+        "cadets",
+        "seniors"
+      ],
+      "description": "Niveau de la classe"
+    },
+    "enseignant": {
+      "type": "string",
+      "description": "Nom de l'enseignant"
+    },
+    "nombre_eleves": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre d'\u00e9l\u00e8ves inscrits"
+    },
+    "annee_scolaire": {
+      "type": "string",
+      "description": "Ann\u00e9e scolaire (ex: 2025-2026)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description de la classe"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "La classe est-elle active"
+    }
+  },
+  "required": [
+    "nom_classe",
+    "code_classe",
+    "niveau"
+  ]
+}

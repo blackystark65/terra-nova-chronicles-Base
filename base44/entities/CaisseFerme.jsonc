@@ -1,0 +1,55 @@
+{
+  "name": "CaisseFerme",
+  "type": "object",
+  "properties": {
+    "total_credits": {
+      "type": "number",
+      "default": 1000,
+      "description": "Montant total dans la caisse de la ferme"
+    },
+    "revenus_epicerie": {
+      "type": "number",
+      "default": 0,
+      "description": "Total des ventes \u00e0 l'\u00e9picerie"
+    },
+    "salaires_verses": {
+      "type": "number",
+      "default": 0,
+      "description": "Total des salaires vers\u00e9s aux \u00e9l\u00e8ves"
+    },
+    "derniere_transaction": {
+      "type": "string",
+      "description": "Date de la derni\u00e8re transaction"
+    },
+    "historique_transactions": {
+      "type": "array",
+      "description": "Historique des transactions",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "vente",
+              "salaire"
+            ]
+          },
+          "montant": {
+            "type": "number"
+          },
+          "eleve_email": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    }
+  },
+  "required": []
+}

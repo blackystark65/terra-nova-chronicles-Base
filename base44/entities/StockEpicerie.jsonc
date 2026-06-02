@@ -1,0 +1,40 @@
+{
+  "name": "StockEpicerie",
+  "type": "object",
+  "properties": {
+    "produit_id": {
+      "type": "string",
+      "description": "ID du produit"
+    },
+    "nom": {
+      "type": "string",
+      "description": "Nom du produit"
+    },
+    "emoji": {
+      "type": "string",
+      "description": "Emoji du produit"
+    },
+    "rayon": {
+      "type": "string",
+      "description": "Rayon (serre, fruits, legumes, viandes, etc.)"
+    },
+    "quantite": {
+      "type": "number",
+      "default": 0,
+      "description": "Quantit\u00e9 en stock"
+    },
+    "prix": {
+      "type": "number",
+      "description": "Prix unitaire"
+    },
+    "derniere_livraison": {
+      "type": "string",
+      "description": "Date de la derni\u00e8re livraison"
+    }
+  },
+  "required": [
+    "produit_id",
+    "nom",
+    "rayon"
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "name": "RecyclageGame",
+  "type": "object",
+  "properties": {
+    "zone": {
+      "type": "string",
+      "enum": [
+        "kitchen",
+        "restaurant",
+        "reception",
+        "rooms",
+        "pool",
+        "beach",
+        "marina",
+        "parking"
+      ],
+      "description": "Zone de l'h\u00f4tel"
+    },
+    "bin_levels": {
+      "type": "object",
+      "description": "Niveaux de remplissage des poubelles (0-100%)",
+      "properties": {
+        "paper": {
+          "type": "number",
+          "default": 0
+        },
+        "plastic": {
+          "type": "number",
+          "default": 0
+        },
+        "glass": {
+          "type": "number",
+          "default": 0
+        },
+        "organic": {
+          "type": "number",
+          "default": 0
+        },
+        "metal": {
+          "type": "number",
+          "default": 0
+        },
+        "general": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "pending_wastes": {
+      "type": "array",
+      "description": "D\u00e9chets en attente de tri",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "emoji": {
+            "type": "string"
+          },
+          "correct_bin": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "score": {
+      "type": "number",
+      "default": 0,
+      "description": "Score du joueur"
+    },
+    "mistakes": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre d'erreurs de tri"
+    },
+    "last_waste_generation": {
+      "type": "string",
+      "description": "Timestamp de la derni\u00e8re g\u00e9n\u00e9ration de d\u00e9chet"
+    }
+  },
+  "required": [
+    "zone"
+  ]
+}

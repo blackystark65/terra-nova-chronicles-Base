@@ -1,0 +1,101 @@
+{
+  "name": "Mission",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Titre de la mission"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description d\u00e9taill\u00e9e"
+    },
+    "biome": {
+      "type": "string",
+      "enum": [
+        "rainforest",
+        "ocean",
+        "savanna",
+        "arctic",
+        "desert",
+        "temperate_forest",
+        "wetlands",
+        "mountains"
+      ],
+      "description": "Biome concern\u00e9"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "URL de l'image personnalis\u00e9e pour cette mission"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "debutant",
+        "intermediaire",
+        "avance",
+        "expert"
+      ],
+      "default": "debutant"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "quiz",
+        "observation",
+        "recherche",
+        "action",
+        "defi"
+      ],
+      "description": "Type de mission"
+    },
+    "xp_reward": {
+      "type": "number",
+      "default": 50,
+      "description": "R\u00e9compense en XP"
+    },
+    "questions": {
+      "type": "array",
+      "description": "Questions pour les quiz",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "correct_answer": {
+            "type": "number"
+          },
+          "explanation": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "completed_by": {
+      "type": "array",
+      "description": "IDs des utilisateurs ayant compl\u00e9t\u00e9",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "title",
+    "biome"
+  ]
+}

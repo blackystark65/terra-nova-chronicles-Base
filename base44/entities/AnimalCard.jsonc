@@ -1,0 +1,36 @@
+{
+  "name": "AnimalCard",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nom de l'animal en fran\u00e7ais"
+    },
+    "name_en": {
+      "type": "string",
+      "description": "Nom de l'animal en anglais"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "extinct",
+        "endangered",
+        "saved"
+      ],
+      "description": "Cat\u00e9gorie de l'animal"
+    },
+    "image": {
+      "type": "string",
+      "description": "URL de la photo de l'animal"
+    },
+    "biome": {
+      "type": "string",
+      "description": "Biome de l'animal"
+    }
+  },
+  "required": [
+    "name",
+    "category",
+    "image"
+  ]
+}

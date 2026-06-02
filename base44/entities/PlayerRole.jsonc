@@ -1,0 +1,53 @@
+{
+  "name": "PlayerRole",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "client",
+        "receptionist",
+        "cleaner",
+        "cook",
+        "waiter",
+        "gardener",
+        "driver",
+        "pool_guard",
+        "port_guard",
+        "shopkeeper"
+      ],
+      "description": "R\u00f4le du joueur dans l'h\u00f4tel"
+    },
+    "role_name": {
+      "type": "string",
+      "description": "Nom du r\u00f4le en fran\u00e7ais"
+    },
+    "zone_assigned": {
+      "type": "string",
+      "description": "Zone de travail principale"
+    },
+    "total_wastes_generated": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre total de d\u00e9chets g\u00e9n\u00e9r\u00e9s"
+    },
+    "total_wastes_sorted": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre de d\u00e9chets correctement tri\u00e9s"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Le joueur est-il actuellement actif"
+    },
+    "last_activity": {
+      "type": "string",
+      "description": "Derni\u00e8re activit\u00e9 du joueur"
+    }
+  },
+  "required": [
+    "role",
+    "role_name"
+  ]
+}

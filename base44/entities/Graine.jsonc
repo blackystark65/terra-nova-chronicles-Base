@@ -1,0 +1,36 @@
+{
+  "name": "Graine",
+  "type": "object",
+  "properties": {
+    "nom": {
+      "type": "string",
+      "description": "Nom de la graine"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "legume",
+        "fruit",
+        "aromatique",
+        "fleur_comestible"
+      ],
+      "description": "Type de graine"
+    },
+    "emoji": {
+      "type": "string",
+      "description": "Emoji repr\u00e9sentant la graine"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "URL de l'image de la graine"
+    },
+    "saison_semis": {
+      "type": "string",
+      "description": "Saison de semis"
+    }
+  },
+  "required": [
+    "nom",
+    "type"
+  ]
+}

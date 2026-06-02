@@ -1,0 +1,68 @@
+{
+  "name": "BoulangeriState",
+  "type": "object",
+  "properties": {
+    "role_ferme_id": {
+      "type": "string",
+      "description": "ID du RoleFerme du boulanger"
+    },
+    "batch_number": {
+      "type": "number",
+      "default": 1,
+      "description": "Num\u00e9ro de la fourn\u00e9e (1 ou 2)"
+    },
+    "dough_batches": {
+      "type": "array",
+      "description": "Pains en cours de pousse",
+      "items": {
+        "type": "object"
+      },
+      "default": []
+    },
+    "proofing_table": {
+      "type": "array",
+      "description": "\u00c9tat des 40 emplacements de la table de pousse",
+      "items": {
+        "type": "object"
+      },
+      "default": []
+    },
+    "oven": {
+      "type": "array",
+      "description": "\u00c9tat des 20 emplacements du four",
+      "items": {
+        "type": "object"
+      },
+      "default": []
+    },
+    "current_stage": {
+      "type": "string",
+      "enum": [
+        "idle",
+        "proofing",
+        "heating",
+        "baking",
+        "cooling"
+      ],
+      "default": "idle",
+      "description": "\u00c9tape actuelle du processus"
+    },
+    "stage_progress": {
+      "type": "number",
+      "default": 0,
+      "description": "Progression de l'\u00e9tape actuelle (0-100)"
+    },
+    "completed_loaves": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre de pains compl\u00e9t\u00e9s et envoy\u00e9s \u00e0 l'\u00e9picerie"
+    },
+    "last_updated": {
+      "type": "string",
+      "description": "Derni\u00e8re mise \u00e0 jour"
+    }
+  },
+  "required": [
+    "role_ferme_id"
+  ]
+}

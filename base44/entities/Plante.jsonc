@@ -1,0 +1,94 @@
+{
+  "name": "Plante",
+  "type": "object",
+  "properties": {
+    "nom": {
+      "type": "string",
+      "description": "Nom de la plante"
+    },
+    "nom_latin": {
+      "type": "string",
+      "description": "Nom scientifique"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "legume",
+        "fruit",
+        "aromate",
+        "cereale",
+        "legumineuse",
+        "courge",
+        "arbre_fruitier",
+        "arbuste"
+      ],
+      "description": "Type de plante"
+    },
+    "zone_ideale": {
+      "type": "string",
+      "enum": [
+        "milpa",
+        "permaculture",
+        "pepiniere",
+        "jouale",
+        "bocage",
+        "foret_jardin",
+        "maraichage"
+      ],
+      "description": "Zone de culture id\u00e9ale"
+    },
+    "saison_semis": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "printemps",
+          "ete",
+          "automne",
+          "hiver"
+        ]
+      },
+      "description": "Saisons de semis"
+    },
+    "saison_recolte": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Saisons de r\u00e9colte"
+    },
+    "compagnons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Plantes compagnes favorables"
+    },
+    "besoins_eau": {
+      "type": "string",
+      "enum": [
+        "faible",
+        "moyen",
+        "eleve"
+      ],
+      "default": "moyen"
+    },
+    "apport_sol": {
+      "type": "string",
+      "description": "Ce que la plante apporte au sol (ex: azote)"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Photo de la plante"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description et utilisation"
+    }
+  },
+  "required": [
+    "nom",
+    "type",
+    "zone_ideale"
+  ]
+}

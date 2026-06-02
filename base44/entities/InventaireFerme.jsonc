@@ -1,0 +1,43 @@
+{
+  "name": "InventaireFerme",
+  "type": "object",
+  "properties": {
+    "type_item": {
+      "type": "string",
+      "enum": [
+        "graine",
+        "recolte",
+        "outil",
+        "produit_transforme",
+        "animal"
+      ],
+      "description": "Type d'item"
+    },
+    "nom": {
+      "type": "string",
+      "description": "Nom de l'item"
+    },
+    "quantite": {
+      "type": "number",
+      "default": 0,
+      "description": "Quantit\u00e9 disponible"
+    },
+    "unite": {
+      "type": "string",
+      "default": "unit\u00e9",
+      "description": "Unit\u00e9 de mesure (kg, unit\u00e9, litre)"
+    },
+    "valeur_vente": {
+      "type": "number",
+      "description": "Prix de vente \u00e0 l'\u00e9picerie"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Image de l'item"
+    }
+  },
+  "required": [
+    "type_item",
+    "nom"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "WasteItem",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nom du d\u00e9chet"
+    },
+    "location": {
+      "type": "string",
+      "enum": [
+        "kitchen",
+        "restaurant",
+        "reception",
+        "rooms",
+        "pool",
+        "beach"
+      ],
+      "description": "Lieu o\u00f9 on trouve ce d\u00e9chet"
+    },
+    "bin_type": {
+      "type": "string",
+      "enum": [
+        "paper",
+        "plastic",
+        "glass",
+        "organic",
+        "metal",
+        "general"
+      ],
+      "description": "Type de poubelle pour ce d\u00e9chet"
+    },
+    "emoji": {
+      "type": "string",
+      "description": "Emoji repr\u00e9sentant le d\u00e9chet"
+    },
+    "recycled_into": {
+      "type": "string",
+      "description": "Ce que ce d\u00e9chet peut devenir apr\u00e8s recyclage"
+    }
+  },
+  "required": [
+    "name",
+    "location",
+    "bin_type"
+  ]
+}

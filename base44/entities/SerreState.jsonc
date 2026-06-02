@@ -1,0 +1,52 @@
+{
+  "name": "SerreState",
+  "type": "object",
+  "properties": {
+    "role_ferme_id": {
+      "type": "string",
+      "description": "ID du RoleFerme de l'horticulteur"
+    },
+    "completed_pots": {
+      "type": "array",
+      "description": "Pots compl\u00e9t\u00e9s dans la serre",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "slotIndex": {
+            "type": "number"
+          },
+          "graine": {
+            "type": "object"
+          },
+          "layers": {
+            "type": "array"
+          }
+        }
+      },
+      "default": []
+    },
+    "water_level": {
+      "type": "number",
+      "default": 100,
+      "description": "Niveau d'eau actuel (0-100)"
+    },
+    "watered_pots": {
+      "type": "array",
+      "description": "Indices des pots arros\u00e9s",
+      "items": {
+        "type": "number"
+      },
+      "default": []
+    },
+    "last_watered_time": {
+      "type": "string",
+      "description": "Timestamp de la derni\u00e8re mise \u00e0 jour de l'eau"
+    }
+  },
+  "required": [
+    "role_ferme_id"
+  ]
+}

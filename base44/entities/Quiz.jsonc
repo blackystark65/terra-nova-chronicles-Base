@@ -1,0 +1,81 @@
+{
+  "name": "Quiz",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Titre du quiz"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description du quiz"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "permaculture",
+        "foret",
+        "agroecologie",
+        "eau",
+        "climat"
+      ],
+      "description": "Cat\u00e9gorie du quiz"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "debutant",
+        "intermediaire",
+        "avance"
+      ],
+      "default": "debutant"
+    },
+    "questions": {
+      "type": "array",
+      "description": "Questions du quiz",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "correct_answers": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "Index des r\u00e9ponses correctes (peut \u00eatre multiple)"
+          },
+          "explanation": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "completed_by": {
+      "type": "array",
+      "description": "IDs des utilisateurs ayant compl\u00e9t\u00e9",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "title",
+    "category"
+  ]
+}

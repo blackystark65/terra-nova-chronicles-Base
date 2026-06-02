@@ -1,0 +1,71 @@
+{
+  "name": "SessionFerme",
+  "type": "object",
+  "properties": {
+    "role_ferme_id": {
+      "type": "string",
+      "description": "ID du r\u00f4le du joueur"
+    },
+    "zone_actuelle": {
+      "type": "string",
+      "description": "Zone actuelle"
+    },
+    "jour_actuel": {
+      "type": "number",
+      "default": 1,
+      "description": "Jour actuel"
+    },
+    "saison_actuelle": {
+      "type": "string",
+      "enum": [
+        "printemps",
+        "ete",
+        "automne",
+        "hiver"
+      ],
+      "default": "printemps",
+      "description": "Saison actuelle"
+    },
+    "score_total": {
+      "type": "number",
+      "default": 0,
+      "description": "Score total"
+    },
+    "score_biodiversite": {
+      "type": "number",
+      "default": 0,
+      "description": "Score de biodiversit\u00e9"
+    },
+    "plantes_cultivees": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre de plantes cultiv\u00e9es"
+    },
+    "recoltes_effectuees": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre de r\u00e9coltes"
+    },
+    "transformations": {
+      "type": "number",
+      "default": 0,
+      "description": "Produits transform\u00e9s"
+    },
+    "ventes_realisees": {
+      "type": "number",
+      "default": 0,
+      "description": "Ventes \u00e0 l'\u00e9picerie"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "current_time_slot": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "role_ferme_id"
+  ]
+}

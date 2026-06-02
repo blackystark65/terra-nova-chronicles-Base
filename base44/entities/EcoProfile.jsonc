@@ -1,0 +1,118 @@
+{
+  "name": "EcoProfile",
+  "type": "object",
+  "properties": {
+    "eco_level": {
+      "type": "number",
+      "default": 1,
+      "description": "Niveau \u00c9co-Sentinelle"
+    },
+    "experience_points": {
+      "type": "number",
+      "default": 0,
+      "description": "Points d'exp\u00e9rience"
+    },
+    "credits": {
+      "type": "number",
+      "default": 100,
+      "description": "Cr\u00e9dits pour acheter \u00e0 l'\u00e9picerie"
+    },
+    "articles_achetes": {
+      "type": "array",
+      "description": "Articles achet\u00e9s \u00e0 l'\u00e9picerie (se vident apr\u00e8s 24h)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "emoji": {
+            "type": "string"
+          },
+          "prix": {
+            "type": "number"
+          },
+          "date_achat": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "derniere_visite_epicerie": {
+      "type": "string",
+      "description": "Date de la derni\u00e8re visite \u00e0 l'\u00e9picerie"
+    },
+    "badges": {
+      "type": "array",
+      "description": "Badges d\u00e9bloqu\u00e9s",
+      "items": {
+        "type": "object",
+        "properties": {
+          "badge_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "unlocked_at": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "biomes_explored": {
+      "type": "array",
+      "description": "Biomes explor\u00e9s",
+      "items": {
+        "type": "string"
+      }
+    },
+    "species_discovered": {
+      "type": "array",
+      "description": "Esp\u00e8ces d\u00e9couvertes",
+      "items": {
+        "type": "string"
+      }
+    },
+    "missions_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "favorite_biome": {
+      "type": "string",
+      "description": "Biome pr\u00e9f\u00e9r\u00e9"
+    },
+    "total_impact_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Score d'impact total sur la plan\u00e8te"
+    },
+    "recycling_stats": {
+      "type": "object",
+      "description": "Statistiques de recyclage",
+      "properties": {
+        "total_wastes_sorted": {
+          "type": "number",
+          "default": 0
+        },
+        "perfect_sorts": {
+          "type": "number",
+          "default": 0
+        },
+        "bins_emptied": {
+          "type": "number",
+          "default": 0
+        },
+        "total_score": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    }
+  },
+  "required": []
+}
