@@ -103,7 +103,7 @@ function PaireFiche({ pair, onClose }) {
             <span className="text-4xl">{pair.ravageur.emoji}</span>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-red-300 font-black text-lg">{pair.ravageur.nom}</span>
+                <span className="text-red-300 font-black text-lg">{pair.ravageur.nomFr || pair.ravageur.nom}</span>
                 <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-xs border border-red-400/30">Ravageur</span>
               </div>
               <span className="text-red-200/50 text-xs italic">{pair.ravageur.nomScientifique}</span>
@@ -119,7 +119,7 @@ function PaireFiche({ pair, onClose }) {
             <span className="text-4xl">{pair.predateur.emoji}</span>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-green-300 font-black text-lg">{pair.predateur.nom}</span>
+                <span className="text-green-300 font-black text-lg">{pair.predateur.nomFr || pair.predateur.nom}</span>
                 <span className={`px-2 py-0.5 rounded-full text-xs border ${pair.predateur.type === 'parasitoide' ? 'bg-violet-500/20 text-violet-300 border-violet-400/30' : 'bg-green-500/20 text-green-300 border-green-400/30'}`}>
                   {pair.predateur.type === 'parasitoide' ? '🔬 Parasitoïde' : '🦁 Prédateur'}
                 </span>
@@ -406,8 +406,15 @@ function GameBoard({ secteurId, onBack }) {
                   <span className={`text-[8px] font-bold relative z-10 px-1 text-center leading-tight
                     ${blocked ? 'text-slate-400' : tile.type === 'ravageur' ? 'text-red-600' : 'text-emerald-700'}
                   `}>
-                    {tile.data.nom.length > 12 ? tile.data.nom.slice(0, 11) + '…' : tile.data.nom}
+                    {tile.data.nomFr.length > 12 ? tile.data.nomFr.slice(0, 11) + '…' : tile.data.nomFr}
                   </span>
+                  {!blocked && tile.data.nomEn && (
+                    <span className={`text-[7px] relative z-10 px-1 text-center leading-tight
+                      ${tile.type === 'ravageur' ? 'text-red-400/70' : 'text-emerald-600/70'}
+                    `}>
+                      {tile.data.nomEn.length > 13 ? tile.data.nomEn.slice(0, 12) + '…' : tile.data.nomEn}
+                    </span>
+                  )}
                   {/* Point couleur type */}
                   {!blocked && (
                     <div className={`absolute top-1 right-1 w-2 h-2 rounded-full ${tile.type === 'ravageur' ? 'bg-red-400' : 'bg-emerald-500'}`} />
