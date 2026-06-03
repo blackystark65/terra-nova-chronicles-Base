@@ -5,6 +5,31 @@ import { createPageUrl } from '@/utils';
 import { ArrowLeft, RotateCcw, Lightbulb, Shuffle, BookOpen } from 'lucide-react';
 import { SECTEURS, ECO_PAIRS_ALL, getPairsBySecteur } from '../data/ecoPairsData';
 
+// Charge les photos sauvegardées dans localStorage (depuis AdminEcoPairs)
+function loadSavedPhotos() {
+  try {
+    return JSON.parse(localStorage.getItem('ecoPairsPhotos') || '{}');
+  } catch {
+    return {};
+  }
+}
+
+// Enrichit les paires avec les photos sauvegardées
+function enrichPairsWithPhotos(pairs) {
+  const saved = loadSavedPhotos();
+  return pairs.map(pair => ({
+    ...pair,
+    ravageur: {
+      ...pair.ravageur,
+      photo: saved[`${pair.id}__ravageur`] || pair.ravageur.photo,
+    },
+    predateur: {
+      ...pair.predateur,
+      photo: saved[`${pair.id}__predateur`] || pair.predateur.photo,
+    },
+  }));
+}
+
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -217,10 +242,10 @@ function GameBoard({ secteurId, onBack }) {
   const secteur = secteurId === 'all' ? null : SECTEURS[secteurId];
   const colors = SECTEUR_COLORS[secteurId] || SECTEUR_COLORS.maraichage;
 
-  const pairs = useMemo(() =>
-    secteurId === 'all' ? shuffle(ECO_PAIRS_ALL) : shuffle(getPairsBySecteur(secteurId)),
-    [secteurId]
-  );
+  const pairs = useMemo(() => {
+    const raw = secteurId === 'all' ? ECO_PAIRS_ALL : getPairsBySecteur(secteurId);
+    return enrichPairsWithPhotos(shuffle(raw));
+  }, [secteurId]);
 
   const [tiles, setTiles] = useState(() => buildLevel(pairs));
   const [selected, setSelected] = useState(null);
