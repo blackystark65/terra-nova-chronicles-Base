@@ -158,7 +158,7 @@ export default function BioFocusPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-green-950 to-emerald-950">
       <BiolumiHeader currentPage="BioFocus" />
 
-      <main className="pt-20 pb-10 px-4 max-w-4xl mx-auto">
+      <main className="pt-20 pb-32 px-4 max-w-4xl mx-auto">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-400/20 mb-3">
