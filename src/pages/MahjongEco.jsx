@@ -384,36 +384,51 @@ function GameBoard({ secteurId, onBack }) {
                 }}
               >
                 <div className={`
-                  w-full h-full rounded-xl flex flex-col items-center justify-center gap-0.5
+                  w-full h-full rounded-xl flex flex-col items-stretch
                   border-2 shadow-lg transition-all duration-150 select-none relative overflow-hidden
                   ${blocked
                     ? 'bg-slate-700/70 border-slate-600/40'
                     : isSelected
-                      ? 'bg-yellow-100 border-yellow-400 shadow-yellow-400/50 shadow-xl'
+                      ? 'bg-yellow-50 border-yellow-400 shadow-yellow-400/50 shadow-xl'
                       : isHinted
-                        ? 'bg-cyan-100 border-cyan-400 shadow-cyan-400/60 shadow-xl animate-pulse'
+                        ? 'bg-cyan-50 border-cyan-400 shadow-cyan-400/60 shadow-xl animate-pulse'
                         : tile.type === 'ravageur'
                           ? 'bg-red-50 border-red-300 hover:bg-red-100 active:scale-95'
                           : 'bg-emerald-50 border-emerald-400 hover:bg-emerald-100 active:scale-95'
                   }
                 `}>
+                  {/* Photo en haut */}
+                  <div className="flex-1 relative overflow-hidden rounded-t-xl">
+                    {blocked ? (
+                      <div className="w-full h-full bg-slate-600/50 flex items-center justify-center">
+                        <span className="text-slate-400 text-xs">🔒</span>
+                      </div>
+                    ) : tile.data.photo ? (
+                      <img
+                        src={tile.data.photo}
+                        alt={tile.data.nomFr}
+                        className="w-full h-full object-cover"
+                        onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }}
+                      />
+                    ) : null}
+                    {!blocked && (
+                      <div className="w-full h-full hidden items-center justify-center bg-slate-200">
+                        <span className="text-2xl">{tile.data.emoji}</span>
+                      </div>
+                    )}
+                  </div>
+                  {/* Noms en bas */}
                   {!blocked && (
-                    <div className="absolute inset-0 rounded-xl pointer-events-none"
-                      style={{ boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.85), inset 0 -3px 0 rgba(0,0,0,0.12)' }}
-                    />
-                  )}
-                  <span className="text-2xl relative z-10 leading-none mt-1">{tile.data.emoji}</span>
-                  <span className={`text-[8px] font-bold relative z-10 px-1 text-center leading-tight
-                    ${blocked ? 'text-slate-400' : tile.type === 'ravageur' ? 'text-red-600' : 'text-emerald-700'}
-                  `}>
-                    {tile.data.nomFr.length > 12 ? tile.data.nomFr.slice(0, 11) + '…' : tile.data.nomFr}
-                  </span>
-                  {!blocked && tile.data.nomEn && (
-                    <span className={`text-[7px] relative z-10 px-1 text-center leading-tight
-                      ${tile.type === 'ravageur' ? 'text-red-400/70' : 'text-emerald-600/70'}
-                    `}>
-                      {tile.data.nomEn.length > 13 ? tile.data.nomEn.slice(0, 12) + '…' : tile.data.nomEn}
-                    </span>
+                    <div className={`px-0.5 py-0.5 text-center border-t ${tile.type === 'ravageur' ? 'border-red-200 bg-red-50' : 'border-emerald-200 bg-emerald-50'}`}>
+                      <div className={`text-[7.5px] font-bold leading-tight ${tile.type === 'ravageur' ? 'text-red-700' : 'text-emerald-800'}`}>
+                        {tile.data.nomFr.length > 11 ? tile.data.nomFr.slice(0, 10) + '…' : tile.data.nomFr}
+                      </div>
+                      {tile.data.nomEn && (
+                        <div className={`text-[6.5px] leading-tight ${tile.type === 'ravageur' ? 'text-red-400' : 'text-emerald-500'}`}>
+                          {tile.data.nomEn.length > 13 ? tile.data.nomEn.slice(0, 12) + '…' : tile.data.nomEn}
+                        </div>
+                      )}
+                    </div>
                   )}
                   {/* Point couleur type */}
                   {!blocked && (
@@ -421,7 +436,7 @@ function GameBoard({ secteurId, onBack }) {
                   )}
                   {/* Indicateur parasitoïde */}
                   {!blocked && tile.type === 'predateur' && tile.data.type === 'parasitoide' && (
-                    <div className="absolute bottom-1 left-1 text-[7px] text-violet-500 font-bold">🔬</div>
+                    <div className="absolute top-1 left-1 text-[7px] text-violet-500 font-bold">🔬</div>
                   )}
                 </div>
               </motion.div>
