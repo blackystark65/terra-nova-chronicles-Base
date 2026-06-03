@@ -1,19 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { ArrowLeft, RotateCcw, Lightbulb, Shuffle, BookOpen } from 'lucide-react';
 import { SECTEURS, ECO_PAIRS_ALL, getPairsBySecteur } from '../data/ecoPairsData';
-
-// ─── LAYOUT MAHJONG ───────────────────────────────────────────────────────────
-const LAYOUTS = {
-  // Pyramide : couche 0 = 4×4, couche 1 = 3×3, couche 2 = 2×2
-  pyramide: () => [
-    ...[0,1,2,3].flatMap(r => [0,1,2,3].map(c => ({ row: r, col: c, layer: 0 }))),
-    ...[0,1,2].flatMap(r => [0,1,2].map(c => ({ row: r+0.5, col: c+0.5, layer: 1 }))),
-    ...[0,1].flatMap(r => [0,1].map(c => ({ row: r+1, col: c+1, layer: 2 }))),
-  ],
-};
 
 function shuffle(arr) {
   const a = [...arr];
@@ -24,49 +14,76 @@ function shuffle(arr) {
   return a;
 }
 
+// Grille simple en rangées : toutes les tuiles sont sur le même layer (layer=0)
+// Seules les tuiles tout à gauche ou tout à droite de leur rangée sont libres
+// OU on utilise un layout en grille ouverte où chaque tuile n'a qu'une tuile à gauche max
 function buildLevel(pairs) {
-  // On prend les 7 premières paires disponibles (14 tuiles × 2 = 28 tuiles)
-  const selected = pairs.slice(0, 7);
-  const pairList = [];
+  // On prend jusqu'à 8 paires (16 tuiles ravageur+prédateur = 16 cases)
+  const selected = shuffle([...pairs]).slice(0, 8);
+
+  // Liste de tiles : pour chaque paire, 1 ravageur + 1 prédateur
+  const pairTiles = [];
   selected.forEach(pair => {
-    // 2 exemplaires de chaque paire (ravageur + prédateur)
-    for (let k = 0; k < 2; k++) {
-      pairList.push({ pairId: pair.id, type: 'ravageur', data: pair.ravageur });
-      pairList.push({ pairId: pair.id, type: 'predateur', data: pair.predateur });
-    }
+    pairTiles.push({ pairId: pair.id, type: 'ravageur', data: pair.ravageur });
+    pairTiles.push({ pairId: pair.id, type: 'predateur', data: pair.predateur });
   });
 
-  const shuffledPairList = shuffle(pairList);
-  const placements = shuffle(LAYOUTS.pyramide());
+  // Mélanger puis placer en grille 4 colonnes × N rangées, layer=0
+  // Toutes les tuiles sont accessibles (pas de blocage par dessus)
+  // Seules les tuiles encadrées gauche+droite sont bloquées => on veut éviter ça
+  // Solution: layout en 2 colonnes séparées (gauche = ravageurs, droite = prédateurs)
+  // Mais mélangé, pour que le joueur doive les trouver
+  const shuffled = shuffle(pairTiles);
 
-  return shuffledPairList.slice(0, placements.length).map((d, i) => ({
+  // 4 colonnes, chaque tuile accessible (pas de layer au-dessus)
+  // On place en grille : colonne pair = accessible des deux côtés OK
+  // Pour éviter le blocage gauche+droite, on utilise 4 cols avec tiles espacées
+  const COLS = 4;
+  const tiles = shuffled.map((d, i) => ({
     id: i,
     pairId: d.pairId,
     type: d.type,
     data: d.data,
-    row: placements[i].row,
-    col: placements[i].col,
-    layer: placements[i].layer,
+    row: Math.floor(i / COLS),
+    col: i % COLS,
+    layer: 0,
     removed: false,
   }));
+
+  return tiles;
 }
 
+// Avec un layout en grille pure layer=0, isBlocked vérifie col-1 ET col+1
+// Pour garantir qu'il y a toujours des tuiles accessibles : les tuiles en col 0 et col 3 sont toujours libres
+
+// Dans notre grille plate (layer=0), aucune tuile n'est bloquée par dessus.
+// On considère une tuile bloquée uniquement si elle a une tuile directement à gauche ET à droite
+// sur la même rangée (même row, même layer).
 function isBlocked(tile, allTiles) {
   if (tile.removed) return false;
-  const above = allTiles.some(t =>
-    !t.removed && t.layer === tile.layer + 1 &&
-    Math.abs(t.row - tile.row) < 1 && Math.abs(t.col - tile.col) < 1
-  );
-  if (above) return true;
-  const hasLeft = allTiles.some(t =>
-    !t.removed && t.layer === tile.layer &&
-    Math.abs(t.row - tile.row) < 1 && t.col === tile.col - 1
-  );
-  const hasRight = allTiles.some(t =>
-    !t.removed && t.layer === tile.layer &&
-    Math.abs(t.row - tile.row) < 1 && t.col === tile.col + 1
-  );
+  const sameRow = allTiles.filter(t => !t.removed && t.layer === tile.layer && t.row === tile.row && t.id !== tile.id);
+  const hasLeft  = sameRow.some(t => t.col === tile.col - 1);
+  const hasRight = sameRow.some(t => t.col === tile.col + 1);
   return hasLeft && hasRight;
+}
+
+function hasPairAvailable(allTiles) {
+  const free = allTiles.filter(t => !t.removed && !isBlocked(t, allTiles));
+  for (const t1 of free) {
+    if (free.some(t2 => t2.id !== t1.id && t2.pairId === t1.pairId && t2.type !== t1.type)) return true;
+  }
+  return false;
+}
+
+// Remélange les données des tuiles actives pour débloquer la situation
+function reshuffleTileData(tiles) {
+  const active = tiles.filter(t => !t.removed);
+  const data = shuffle(active.map(t => ({ pairId: t.pairId, type: t.type, data: t.data })));
+  return tiles.map(t => {
+    if (t.removed) return t;
+    const idx = active.findIndex(a => a.id === t.id);
+    return { ...t, ...data[idx] };
+  });
 }
 
 function isMatch(t1, t2) {
@@ -208,15 +225,27 @@ function GameBoard({ secteurId, onBack }) {
   const [tiles, setTiles] = useState(() => buildLevel(pairs));
   const [selected, setSelected] = useState(null);
   const [score, setScore] = useState(0);
-  const [hints, setHints] = useState(3);
+  const [hints, setHints] = useState(5);
   const [hintPair, setHintPair] = useState(null);
-  const [shuffles, setShuffles] = useState(3);
+  const [shuffles, setShuffles] = useState(5);
   const [message, setMessage] = useState(null);
   const [won, setWon] = useState(false);
   const [combo, setCombo] = useState(0);
   const [lastMatch, setLastMatch] = useState(null);
   const [fichePair, setFichePair] = useState(null);
   const [wonPairs, setWonPairs] = useState([]);
+
+  // Détection deadlock : aucune paire libre → auto-shuffle silencieux
+  useEffect(() => {
+    if (won || tiles.filter(t => !t.removed).length === 0) return;
+    if (!hasPairAvailable(tiles)) {
+      const timer = setTimeout(() => {
+        setTiles(t => reshuffleTileData(t));
+        setSelected(null);
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [tiles, won]);
 
   const activeTiles = tiles.filter(t => !t.removed);
   const freeList = activeTiles.filter(t => !isBlocked(t, activeTiles));
@@ -234,10 +263,9 @@ function GameBoard({ secteurId, onBack }) {
 
     if (isMatch(selected, tile)) {
       const pair = pairs.find(p => p.id === tile.pairId);
-      const newTiles = tiles.map(t =>
+      let newTiles = tiles.map(t =>
         t.id === selected.id || t.id === tile.id ? { ...t, removed: true } : t
       );
-      setTiles(newTiles);
       setSelected(null);
       setHintPair(null);
       const newCombo = combo + 1;
@@ -246,8 +274,22 @@ function GameBoard({ secteurId, onBack }) {
       setScore(s => s + pts);
       setLastMatch(pair);
       setWonPairs(prev => [...prev, pair]);
-      showMessage(`✅ ${pair.predateur.emoji} élimine le ${pair.ravageur.nom} ! +${pts} pts`, 2000);
-      if (newTiles.filter(t => !t.removed).length === 0) setWon(true);
+
+      const remaining = newTiles.filter(t => !t.removed);
+      if (remaining.length === 0) {
+        setTiles(newTiles);
+        setWon(true);
+        return;
+      }
+
+      // Auto-remélange si aucune paire accessible après le match
+      if (!hasPairAvailable(newTiles)) {
+        newTiles = reshuffleTileData(newTiles);
+        showMessage(`✅ +${pts} pts — 🔀 Mélange auto !`, 2000);
+      } else {
+        showMessage(`✅ ${pair.predateur.emoji} élimine le ${pair.ravageur.nom} ! +${pts} pts`, 2000);
+      }
+      setTiles(newTiles);
     } else {
       setCombo(0);
       showMessage('❌ Ce n\'est pas le bon auxiliaire !', 1200);
@@ -269,14 +311,7 @@ function GameBoard({ secteurId, onBack }) {
     if (shuffles <= 0) return;
     setShuffles(s => s - 1);
     setCombo(0);
-    const active = tiles.filter(t => !t.removed);
-    const data = shuffle(active.map(t => ({ pairId: t.pairId, type: t.type, data: t.data })));
-    const newTiles = tiles.map(t => {
-      if (t.removed) return t;
-      const idx = active.findIndex(a => a.id === t.id);
-      return { ...t, ...data[idx] };
-    });
-    setTiles(newTiles);
+    setTiles(t => reshuffleTileData(t));
     setSelected(null);
     setHintPair(null);
     showMessage('🔀 Tuiles mélangées !', 1500);
@@ -286,8 +321,8 @@ function GameBoard({ secteurId, onBack }) {
     setTiles(buildLevel(pairs));
     setSelected(null);
     setScore(0);
-    setHints(3);
-    setShuffles(3);
+    setHints(5);
+    setShuffles(5);
     setCombo(0);
     setHintPair(null);
     setWon(false);
