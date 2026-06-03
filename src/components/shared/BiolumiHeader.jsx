@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Globe, Leaf, BookOpen, Trophy, User, Flame, X, LogOut, Calendar, Users, ChevronDown } from 'lucide-react';
-import schoolConfig from '@/config/school';
 
 export default function BiolumiHeader({ currentPage }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -66,26 +65,26 @@ export default function BiolumiHeader({ currentPage }) {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {/* Fond menu — couleur définie dans config/school.js */}
-        <div className="absolute inset-0 backdrop-blur-xl" style={{ backgroundColor: schoolConfig.colors.menuBg }} />
+        {/* Fond blanc Ferme du Fond de l'Étang */}
+        <div className="absolute inset-0 backdrop-blur-xl" style={{ backgroundColor: 'rgba(255, 255, 255, 0.97)' }} />
         
-        {/* Reflet doré subtil */}
-        <div className="absolute inset-0 bg-gradient-to-r from-yellow-600/5 via-transparent to-yellow-600/5" />
+        {/* Néon gris subtil */}
+        <div className="absolute inset-0" style={{ boxShadow: 'inset 0 0 80px rgba(150,150,150,0.12), inset 0 -4px 30px rgba(100,100,100,0.08)' }} />
         
         <nav className="relative w-full px-2 py-2">
           <div className="flex items-center justify-between gap-2">
-            {/* Logo Institut du Rosey + Terra Nova */}
+            {/* Logo Ferme du Fond de l'Étang */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              {schoolConfig.logoUrl && (
+              <a href="https://lafermedufonddeletang.ch/" target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
                 <motion.img
                   whileHover={{ scale: 1.08 }}
-                  src={schoolConfig.logoUrl}
-                  alt={schoolConfig.name}
-                  title={schoolConfig.name}
-                  style={{ height: '48px', width: 'auto', display: 'block', objectFit: 'contain' }}
+                  src="https://media.base44.com/images/public/6a1c304c98479205133679a6/78196659c_fermeFondEtangLogo31.png"
+                  alt="La Ferme du Fond de l'Étang"
+                  title="La Ferme du Fond de l'Étang"
+                  style={{ height: '52px', width: 'auto', display: 'block', objectFit: 'contain', filter: 'drop-shadow(0 0 8px rgba(134,239,172,0.5))' }}
                 />
-              )}
-              {schoolConfig.logoUrl && <div className="h-6 w-px bg-white/20 flex-shrink-0" />}
+              </a>
+              <div className="h-6 w-px bg-white/20 flex-shrink-0" />
               <Link to={createPageUrl('Home')}>
                 <motion.div
                   className="flex items-center gap-2 group cursor-pointer"
@@ -132,11 +131,11 @@ export default function BiolumiHeader({ currentPage }) {
                       <motion.div
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.95 }}
-                        className="group relative px-2 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 hover:shadow-md hover:shadow-emerald-500/20 border border-transparent hover:border-emerald-400/30 transition-all duration-300"
+                        className="group relative px-2 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 hover:border-emerald-400 transition-all duration-300"
                       >
                         <div className="relative flex items-center gap-1.5">
-                          <Icon className="w-3.5 h-3.5 text-emerald-400/70 group-hover:text-emerald-300 group-hover:drop-shadow-[0_0_4px_rgba(52,211,153,0.8)] transition-all" />
-                          <span className="text-xs font-medium text-emerald-300/70 group-hover:text-emerald-200 transition-all">{item.name}</span>
+                          <Icon className="w-3.5 h-3.5 text-emerald-600 group-hover:text-emerald-700 transition-all" />
+                          <span className="text-xs font-semibold text-emerald-700 group-hover:text-emerald-800 transition-all">{item.name}</span>
                         </div>
                       </motion.div>
                     </a>
@@ -152,31 +151,15 @@ export default function BiolumiHeader({ currentPage }) {
                         relative px-2 py-1.5 rounded-xl
                         transition-all duration-300
                         ${isActive ?
-                          'bg-gradient-to-r from-emerald-500/30 to-teal-500/30 shadow-lg shadow-emerald-500/20 border border-emerald-400/40' :
-                          'bg-white/5 hover:bg-white/10 hover:shadow-md hover:shadow-emerald-500/20 hover:border hover:border-emerald-400/30 border border-transparent'}
+                          'bg-emerald-600 shadow-lg shadow-emerald-400/30 border border-emerald-700' :
+                          'bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 hover:border-emerald-400'}
                       `}>
-                      {isActive && (
-                        <motion.div
-                          className="absolute inset-0 rounded-xl border border-emerald-400/30"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: [0.3, 0.6, 0.3] }}
-                          transition={{ duration: 2, repeat: Infinity }} />
-                      )}
                       <div className="relative flex items-center gap-1.5">
-                        <Icon className={`w-3 h-3 ${isActive ? 'text-emerald-300 drop-shadow-[0_0_4px_rgba(52,211,153,0.9)]' : 'text-emerald-400/70'}`} />
-                        <span
-                          className={`text-xs font-medium ${isActive ? 'text-emerald-200' : 'text-emerald-300/70'}`}
-                          style={isActive ? { textShadow: '0 0 8px rgba(52,211,153,0.8), 0 0 16px rgba(52,211,153,0.4)' } : {}}
-                        >
+                        <Icon className={`w-3 h-3 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
+                        <span className={`text-xs font-semibold ${isActive ? 'text-white' : 'text-emerald-700'}`}>
                           {item.name}
                         </span>
                       </div>
-                      {isActive && (
-                        <motion.div
-                          className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-cyan-400"
-                          animate={{ scale: [1, 1.5, 1], opacity: [0.8, 1, 0.8] }}
-                          transition={{ duration: 1.5, repeat: Infinity }} />
-                      )}
                     </motion.div>
                   </Link>
                 );
@@ -220,8 +203,8 @@ export default function BiolumiHeader({ currentPage }) {
           </div>
         </nav>
 
-        {/* Ligne de séparation dorée */}
-        <div className="h-px bg-gradient-to-r from-transparent via-yellow-500/40 to-transparent" />
+        {/* Ligne de séparation grise néon */}
+        <div className="h-px bg-gradient-to-r from-transparent via-gray-400/50 to-transparent" style={{ boxShadow: '0 0 6px rgba(150,150,150,0.4)' }} />
 
         {/* Mobile menu dropdown */}
         <AnimatePresence>
@@ -232,7 +215,7 @@ export default function BiolumiHeader({ currentPage }) {
               exit={{ opacity: 0, height: 0 }}
               className="md:hidden overflow-hidden"
             >
-              <div className="px-4 py-4 space-y-2 backdrop-blur-xl overflow-y-auto max-h-[80vh]" style={{ backgroundColor: schoolConfig.colors.menuBg }}>
+              <div className="px-4 py-4 space-y-2 backdrop-blur-xl overflow-y-auto max-h-[80vh]" style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}>
                 <Link to={createPageUrl('Profile')} onClick={() => setMobileMenuOpen(false)}>
                   <motion.div
                     whileTap={{ scale: 0.95 }}
@@ -261,10 +244,10 @@ export default function BiolumiHeader({ currentPage }) {
                       <a key={item.name} href={item.externalUrl} onClick={() => setMobileMenuOpen(false)}>
                         <motion.div
                           whileTap={{ scale: 0.95 }}
-                          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300"
+                          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200 transition-all duration-300"
                         >
-                          <Icon className="w-5 h-5 text-emerald-400/70" />
-                          <span className="text-base font-medium text-emerald-300/70">{item.name}</span>
+                          <Icon className="w-5 h-5 text-emerald-600" />
+                          <span className="text-base font-semibold text-emerald-700">{item.name}</span>
                         </motion.div>
                       </a>
                     );
@@ -278,13 +261,13 @@ export default function BiolumiHeader({ currentPage }) {
                           flex items-center gap-3 px-4 py-3 rounded-xl
                           transition-all duration-300
                           ${isActive ?
-                            'bg-gradient-to-r from-emerald-500/30 to-teal-500/30 shadow-lg' :
-                            'bg-white/5 hover:bg-white/10'
+                            'bg-emerald-600 shadow-lg border border-emerald-700' :
+                            'bg-emerald-50 border border-emerald-200'
                           }
                         `}
                       >
-                        <Icon className={`w-5 h-5 ${isActive ? 'text-emerald-300' : 'text-emerald-400/70'}`} />
-                        <span className={`text-base font-medium ${isActive ? 'text-emerald-200' : 'text-emerald-300/70'}`}>
+                        <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
+                        <span className={`text-base font-semibold ${isActive ? 'text-white' : 'text-emerald-700'}`}>
                           {item.name}
                         </span>
                       </motion.div>
@@ -306,7 +289,7 @@ export default function BiolumiHeader({ currentPage }) {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
             className="hidden md:flex fixed top-0 left-1/2 -translate-x-1/2 z-[55] items-center gap-2 px-4 py-1 rounded-b-xl cursor-pointer"
-            style={{ backgroundColor: schoolConfig.colors.menuBg, backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderTop: 'none' }}
+            style={{ backgroundColor: 'rgba(255, 255, 255, 0.92)', backdropFilter: 'blur(12px)', border: '1px solid rgba(150,150,150,0.2)', borderTop: 'none' }}
             onMouseEnter={handleMouseEnter}
           >
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
