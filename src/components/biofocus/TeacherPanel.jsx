@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Trophy, Users, Copy, CheckCircle, X, Star, Coins, Award, UserPlus, Search, Trash2 } from 'lucide-react';
+import { Trophy, Users, Copy, CheckCircle, X, Star, Coins, Award, UserPlus, Search, Trash2, Pencil } from 'lucide-react';
 import { TEAMS_CONFIG, calcScore, generateCode, WINNER_REWARDS, PARTICIPANT_REWARDS } from './BioFocusData';
 
 function ScoreBadge({ label, value, color }) {
@@ -134,11 +134,7 @@ export default function TeacherPanel({ sessions, user, onSessionCreated }) {
   };
 
   const handleAddToTeam = async (session, eleve, teamId) => {
-    // Relire la session fraîche pour éviter les doublons
-    const freshSessions = await base44.entities.BioFocusSession.filter({ id: session.id });
-    const fresh = freshSessions?.[0] || session;
-
-    const allMembers = [...(fresh.members_team1 || []), ...(fresh.members_team2 || [])];
+    const allMembers = [...(session.members_team1 || []), ...(session.members_team2 || [])];
     if (allMembers.some(m => m.eleve_numero === eleve.numero)) {
       setSearchError(`${eleve.prenom} ${eleve.nom} est déjà dans une équipe.`);
       return;
@@ -151,19 +147,71 @@ export default function TeacherPanel({ sessions, user, onSessionCreated }) {
       eco_profile_id: '',
     };
     const key = `members_${teamId}`;
-    const updated = [...(fresh[key] || []), newMember];
-    await base44.entities.BioFocusSession.update(fresh.id, { [key]: updated });
+    const updated = [...(session[key] || []), newMember];
+    await base44.entities.BioFocusSession.update(session.id, { [key]: updated });
     qc.invalidateQueries(['biofocus-sessions']);
     setSearchResults([]);
     setSearchQuery('');
     setSearchError('');
   };
 
-  const handleRemoveFromTeam = async (session, teamId, eleveNumero) => {
+  const handleRemoveFromTeam = async (session, teamId, indexToRemove) => {
     const key = `members_${teamId}`;
-    const updated = (session[key] || []).filter(m => m.eleve_numero !== eleveNumero);
+    const updated = (session[key] || []).filter((_, i) => i !== indexToRemove);
     await base44.entities.BioFocusSession.update(session.id, { [key]: updated });
     qc.invalidateQueries(['biofocus-sessions']);
+  };
+
+  const handleDeduplicateTeam = async (session, teamId) => {
+    const key = `members_${teamId}`;
+    const members = session[key] || [];
+    const seen = new Set();
+    const deduped = members.filter(m => {
+      const identifier = m.eleve_numero || m.user_name;
+      if (seen.has(identifier)) return false;
+      seen.add(identifier);
+      return true;
+    });
+    if (deduped.length === members.length) return; // pas de doublon
+    await base44.entities.BioFocusSession.update(session.id, { [key]: deduped });
+    qc.invalidateQueries(['biofocus-sessions']);
+  };
+
+  const handleDeduplicateSession = async (session) => {
+    await handleDeduplicateTeam(session, 'team1');
+    await handleDeduplicateTeam(session, 'team2');
+  };
+
+  const countDuplicates = (session) => {
+    let count = 0;
+    for (const teamId of ['team1', 'team2']) {
+      const members = session[`members_${teamId}`] || [];
+      const seen = new Set();
+      for (const m of members) {
+        const id = m.eleve_numero || m.user_name;
+        if (seen.has(id)) count++;
+        else seen.add(id);
+      }
+    }
+    return count;
+  };
+
+  const [renamingSession, setRenamingSession] = useState(null); // session.id en cours de renommage
+  const [renameValue, setRenameValue] = useState('');
+
+  const handleRenameStart = (session) => {
+    setRenamingSession(session.id);
+    setRenameValue(session.nom_classe);
+  };
+
+  const handleRenameConfirm = async (session) => {
+    if (!renameValue.trim() || renameValue.trim() === session.nom_classe) {
+      setRenamingSession(null);
+      return;
+    }
+    await base44.entities.BioFocusSession.update(session.id, { nom_classe: renameValue.trim() });
+    qc.invalidateQueries(['biofocus-sessions']);
+    setRenamingSession(null);
   };
 
   const mySessions = sessions.filter(s => s.enseignant_email === user.email);
@@ -197,9 +245,32 @@ export default function TeacherPanel({ sessions, user, onSessionCreated }) {
           <div key={session.id} className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
             <div className="p-4 border-b border-white/10">
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-black text-white">{session.nom_classe}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    {renamingSession === session.id ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          autoFocus
+                          value={renameValue}
+                          onChange={e => setRenameValue(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') handleRenameConfirm(session); if (e.key === 'Escape') setRenamingSession(null); }}
+                          className="rounded-lg bg-black/40 border border-emerald-400/50 text-white font-black px-2 py-0.5 text-sm focus:outline-none w-48"
+                        />
+                        <button onClick={() => handleRenameConfirm(session)} className="text-emerald-400 hover:text-emerald-300 transition-colors">
+                          <CheckCircle className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => setRenamingSession(null)} className="text-white/40 hover:text-white/60 transition-colors">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-black text-white">{session.nom_classe}</span>
+                        <button onClick={() => handleRenameStart(session)} className="text-white/20 hover:text-white/60 transition-colors" title="Renommer la session">
+                          <Pencil className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )}
                     <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
                       session.status === 'en_cours' ? 'bg-green-500/20 text-green-300' :
                       session.status === 'termine' ? 'bg-amber-500/20 text-amber-300' :
@@ -210,6 +281,15 @@ export default function TeacherPanel({ sessions, user, onSessionCreated }) {
                   </div>
                   <p className="text-white/50 text-xs">{session.date_session}</p>
                 </div>
+                {session.status === 'en_cours' && countDuplicates(session) > 0 && (
+                  <button
+                    onClick={() => handleDeduplicateSession(session)}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-400/30 font-bold transition-all"
+                    title="Supprimer les noms en double dans les équipes"
+                  >
+                    🧹 {countDuplicates(session)} doublon{countDuplicates(session) > 1 ? 's' : ''}
+                  </button>
+                )}
                 {session.status === 'en_cours' && (
                   <button onClick={() => handleCloture(session)} className="text-xs px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-400/30 font-bold transition-all">
                     🏁 Clôturer
@@ -352,17 +432,17 @@ export default function TeacherPanel({ sessions, user, onSessionCreated }) {
                                   <p className="text-white/30 text-xs italic">Aucun élève</p>
                                 ) : (
                                   <div className="space-y-1">
-                                    {members.map((m, i) => (
-                                      <div key={i} className="flex items-center justify-between gap-1">
-                                        <span className="text-xs text-white/70 truncate">{m.user_name}</span>
-                                        <button
-                                          onClick={() => handleRemoveFromTeam(session, team.id, m.eleve_numero)}
-                                          className="flex-shrink-0 p-0.5 rounded hover:bg-red-500/20 text-white/30 hover:text-red-400 transition-all"
-                                        >
-                                          <X className="w-3 h-3" />
-                                        </button>
-                                      </div>
-                                    ))}
+                                   {members.map((m, i) => (
+                                     <div key={i} className="flex items-center justify-between gap-1">
+                                       <span className="text-xs text-white/70 truncate">{m.user_name}</span>
+                                       <button
+                                         onClick={() => handleRemoveFromTeam(session, team.id, i)}
+                                         className="flex-shrink-0 p-0.5 rounded hover:bg-red-500/20 text-white/30 hover:text-red-400 transition-all"
+                                       >
+                                         <X className="w-3 h-3" />
+                                       </button>
+                                     </div>
+                                   ))}
                                   </div>
                                 )}
                               </div>
