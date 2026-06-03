@@ -292,8 +292,10 @@ function GameBoard({ secteurId, onBack }) {
       setTiles(newTiles);
     } else {
       setCombo(0);
-      showMessage('❌ Ce n\'est pas le bon auxiliaire !', 1200);
-      setSelected(tile);
+      // Clear selection immediately so both tiles visually deselect — no ambiguous state
+      setSelected(null);
+      setMessage(null);
+      setTimeout(() => showMessage('❌ Ce n\'est pas le bon auxiliaire !', 1400), 0);
     }
   };
 
