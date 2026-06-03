@@ -297,6 +297,7 @@ const SLIDES = [
             { emoji: '♻️', title: 'Trier des déchets', desc: 'Jeu de rôle dans un hôtel : trie les déchets dans les bonnes poubelles.' },
             { emoji: '🌾', title: 'Gérer la micro-ferme', desc: 'Plante, récolte, transforme et vends dans l\'épicerie coopérative.' },
             { emoji: '🔬', title: 'Enquêter le sol', desc: 'Bio-Focus : photographie les organismes du sol avec un appareil ×1000.' },
+            { emoji: '🀄', title: 'Eco-Mahjong', desc: 'Associe chaque ravageur agricole a son auxiliaire naturel en lutte biologique.' },
             { emoji: '🏅', title: 'Progresser & Gagner', desc: 'XP, crédits, badges, niveaux Éco-Sentinelle — chaque action compte.' },
           ].map((item, i) => (
             <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-orange-400/20">
@@ -365,6 +366,66 @@ const SLIDES = [
             <div className="font-bold text-teal-300 text-xs">Nettoyeurs</div>
             <div className="text-teal-200/60 text-xs">15 pts/espèce</div>
           </div>
+        </div>
+      </div>
+    ),
+  },
+
+  // 7b — Éco-Mahjong
+  {
+    id: 'eco-mahjong',
+    bg: 'from-green-950 via-emerald-950 to-teal-950',
+    title: '🀄 Eco-Mahjong',
+    content: (
+      <div className="px-8 py-10 max-w-5xl mx-auto">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="p-3 rounded-2xl bg-green-500/20 border border-green-400/30 text-4xl">🀄</div>
+          <div>
+            <h2 className="text-4xl font-black text-white">Eco-Mahjong</h2>
+            <p className="text-green-400/60 text-sm">Lutte biologique — Appariements ravageurs & auxiliaires de culture</p>
+          </div>
+        </div>
+        <p className="text-green-200/70 text-lg mb-6 leading-relaxed">
+          Un jeu educatif inspire du Mahjong : les eleves <strong className="text-green-300">associent chaque ravageur agricole a son auxiliaire naturel</strong> (predateur ou parasitoide) a travers une grille de tuiles en 3D. 26 especes scientifiques reelles reparties sur 4 secteurs agronomiques.
+        </p>
+        <div className="grid md:grid-cols-2 gap-5 mb-5">
+          <div className="p-5 rounded-2xl bg-white/5 border border-green-400/20">
+            <h3 className="font-bold text-green-300 mb-3">🎯 Principe du jeu</h3>
+            <ul className="space-y-2 text-green-200/70 text-sm">
+              <li>• Choisir un secteur agricole parmi 4</li>
+              <li>• Les tuiles ravageurs + auxiliaires sont disposees en grille 3D superposee</li>
+              <li>• Retrouver et associer chaque ravageur a son auxiliaire</li>
+              <li>• Seules les tuiles "libres" (non bloquees) peuvent etre jouees</li>
+              <li>• Chaque paire reussie devoile une fiche scientifique</li>
+            </ul>
+          </div>
+          <div className="p-5 rounded-2xl bg-white/5 border border-teal-400/20">
+            <h3 className="font-bold text-teal-300 mb-3">🌿 Apports pedagogiques</h3>
+            <ul className="space-y-2 text-teal-200/70 text-sm">
+              <li>• Comprendre la lutte biologique (alternative aux pesticides)</li>
+              <li>• Memoriser des noms scientifiques reels</li>
+              <li>• Distinguer predateurs et parasitoides</li>
+              <li>• Aborder l'agroecologie de facon ludique</li>
+              <li>• Complement ideal aux sorties terrain Bio-Focus</li>
+            </ul>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 gap-3 mb-5">
+          {[
+            { emoji: '🥦', label: 'Maraichage', desc: '11 paires', color: 'green' },
+            { emoji: '🍎', label: 'Arboriculture', desc: '6 paires', color: 'red' },
+            { emoji: '🍇', label: 'Viticulture', desc: '6 paires', color: 'violet' },
+            { emoji: '🌱', label: 'Pepiniere', desc: '5 paires', color: 'teal' },
+          ].map((s, i) => (
+            <div key={i} className="p-3 rounded-xl bg-white/5 border border-green-400/20 text-center">
+              <div className="text-2xl mb-1">{s.emoji}</div>
+              <div className="text-green-300 font-bold text-xs mb-0.5">{s.label}</div>
+              <div className="text-green-200/50 text-xs">{s.desc}</div>
+            </div>
+          ))}
+        </div>
+        <div className="p-4 rounded-2xl bg-green-500/10 border border-green-400/20 text-sm text-green-200/80">
+          🎓 <strong className="text-white">Disciplines :</strong> Sciences naturelles, EDD, Agroecologie. Adaptable au degre primaire et secondaire. Jouable en classe ou en autonomie.
         </div>
       </div>
     ),

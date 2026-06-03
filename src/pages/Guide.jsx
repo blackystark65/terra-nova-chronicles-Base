@@ -655,6 +655,72 @@ const SLIDES = [
     ),
   },
 
+  // ── SLIDE Éco-Mahjong ──
+  {
+    id: 'eco-mahjong',
+    bg: 'from-green-950 via-emerald-950 to-teal-950',
+    content: (
+      <div className="px-8 py-10 max-w-4xl mx-auto">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 rounded-2xl bg-green-500/20 border border-green-400/30">
+            <span className="text-3xl">🀄</span>
+          </div>
+          <div>
+            <h2 className="text-3xl font-black text-white">Éco-Mahjong</h2>
+            <p className="text-green-400/60 text-sm">Lutte biologique — Appariements ravageurs & auxiliaires</p>
+          </div>
+        </div>
+        <p className="text-green-200/70 mb-6 text-base leading-relaxed">
+          Un jeu de mémoire inspiré du Mahjong où les élèves doivent <strong className="text-green-300">associer chaque ravageur agricole à son auxiliaire naturel</strong> (prédateur ou parasitoide). Le jeu couvre 4 secteurs agronomiques et 26 espèces scientifiques réelles.
+        </p>
+        <div className="grid md:grid-cols-2 gap-5 mb-6">
+          <div className="p-5 rounded-2xl bg-white/5 border border-green-400/20">
+            <h3 className="font-bold text-green-300 mb-3">🎯 Comment jouer ?</h3>
+            <ul className="space-y-2 text-green-200/70 text-sm">
+              <li>• Choisir un secteur agricole (Maraichage, Arboriculture, Viticulture, Pepiniere)</li>
+              <li>• Les tuiles ravageurs et auxiliaires sont disposees en grille 3D</li>
+              <li>• Associer la tuile ravageur a son auxiliaire correspondant</li>
+              <li>• Seules les tuiles "libres" (non bloquees) peuvent etre jouees</li>
+              <li>• Utiliser les indices ou melanger si bloques</li>
+            </ul>
+          </div>
+          <div className="p-5 rounded-2xl bg-white/5 border border-teal-400/20">
+            <h3 className="font-bold text-teal-300 mb-3">🌿 Objectifs pedagogiques</h3>
+            <ul className="space-y-2 text-teal-200/70 text-sm">
+              <li>• Comprendre la lutte biologique comme alternative aux pesticides</li>
+              <li>• Memoriser les noms scientifiques des especes auxiliaires</li>
+              <li>• Distinguer predateurs et parasitoides</li>
+              <li>• Explorer 4 secteurs : maraichage, arboriculture, viticulture, pepiniere</li>
+              <li>• Lire la fiche scientifique de chaque appariement reussi</li>
+            </ul>
+          </div>
+        </div>
+        <div className="grid md:grid-cols-4 gap-3 mb-5">
+          {[
+            { emoji: '🥦', label: 'Maraichage', desc: '11 paires' },
+            { emoji: '🍎', label: 'Arboriculture', desc: '6 paires' },
+            { emoji: '🍇', label: 'Viticulture', desc: '6 paires' },
+            { emoji: '🌱', label: 'Pepiniere', desc: '5 paires' },
+          ].map((s, i) => (
+            <div key={i} className="p-3 rounded-xl bg-green-500/10 border border-green-400/20 text-center">
+              <div className="text-2xl mb-1">{s.emoji}</div>
+              <div className="text-green-300 font-bold text-xs mb-0.5">{s.label}</div>
+              <div className="text-green-200/50 text-xs">{s.desc}</div>
+            </div>
+          ))}
+        </div>
+        <div className="p-4 rounded-2xl bg-teal-500/10 border border-teal-400/30 text-sm text-teal-200/80">
+          🎓 <strong>Usage pedagogique :</strong> Sciences naturelles, EDD, agroecologie. Chaque paire reussie affiche une fiche scientifique detaillee expliquant le mode d'action de l'auxiliaire. Ideal apres une sortie terrain ou en complement du module Bio-Focus.
+        </div>
+        <Link to={createPageUrl('MahjongEco')}>
+          <button className="mt-4 w-full py-3 rounded-xl bg-green-500/20 border border-green-400/30 text-green-300 font-bold hover:bg-green-500/30 transition-all">
+            🀄 Jouer a l'Eco-Mahjong →
+          </button>
+        </Link>
+      </div>
+    ),
+  },
+
   // ── SLIDE Agenda Terrain & Rapports ──
   {
     id: 'agenda-rapports',
