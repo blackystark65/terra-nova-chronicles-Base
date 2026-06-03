@@ -78,7 +78,7 @@ export default function BiolumiHeader({ currentPage }) {
               <a href="https://www.rosey.ch/" target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
                 <motion.img
                   whileHover={{ scale: 1.08 }}
-                  src="https://media.base44.com/images/public/6959886137576a65dcfe1370/78281f6ca_generated_image.png"
+                  src="https://media.base44.com/images/public/6959886137576a65dcfe1370/942c866d2_IMG_0817.png"
                   alt="Le Rosey"
                   title="Institut Le Rosey"
                   style={{ height: '48px', width: 'auto', display: 'block', objectFit: 'contain', filter: 'drop-shadow(0 0 8px rgba(59,130,246,0.5))' }}
