@@ -17,6 +17,7 @@ export default function BiolumiHeader({ currentPage }) {
     { name: 'Quiz', icon: Trophy, path: 'Quiz' },
     { name: 'Jeux', icon: Flame, path: 'Jeux' },
     { name: 'Puzzle', icon: Trophy, path: 'Puzzle' },
+    { name: '🀄 Éco-Mahjong', icon: Leaf, path: 'MahjongEco' },
     { name: 'Recyclage', icon: Leaf, path: 'RecyclageRoleSelection' },
     { name: 'Micro-ferme', icon: Leaf, path: 'MicroFerme' },
     { name: 'Missions', icon: Flame, path: 'Missions' },
