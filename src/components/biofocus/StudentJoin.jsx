@@ -79,16 +79,10 @@ export default function StudentJoin({ sessions, onJoined }) {
       return;
     }
 
-    // Relire la session fraîche depuis la DB pour éviter les doublons (race condition / double-clic)
-    const freshSessions = await base44.entities.BioFocusSession.filter({ id: foundSession.id });
-    const freshSession = freshSessions?.[0] || foundSession;
-
-    // Vérifier si déjà inscrit (par numéro élève) sur les données fraîches
-    const allMembers = [...(freshSession.members_team1 || []), ...(freshSession.members_team2 || [])];
+    // Vérifier si déjà inscrit (par numéro élève)
+    const allMembers = [...(foundSession.members_team1 || []), ...(foundSession.members_team2 || [])];
     if (allMembers.some(m => m.eleve_numero === eleve.numero)) {
-      // Déjà inscrit : on l'amène directement au jeu sans erreur
-      qc.invalidateQueries(['biofocus-sessions']);
-      onJoined?.({ session: freshSession, team: foundTeam, eleve });
+      setError('Vous êtes déjà inscrit dans cette session.');
       setLoading(false);
       return;
     }
@@ -97,15 +91,15 @@ export default function StudentJoin({ sessions, onJoined }) {
       eleve_id: eleve.id,
       eleve_numero: eleve.numero,
       user_name: `${eleve.prenom} ${eleve.nom}`,
-      user_email: eleve.numero,
+      user_email: eleve.numero, // fallback pour compatibilité
       eco_profile_id: '',
     };
 
-    const updatedMembers = [...(freshSession[`members_${foundTeam}`] || []), newMember];
-    await base44.entities.BioFocusSession.update(freshSession.id, { [`members_${foundTeam}`]: updatedMembers });
+    const updatedMembers = [...(foundSession[`members_${foundTeam}`] || []), newMember];
+    await base44.entities.BioFocusSession.update(foundSession.id, { [`members_${foundTeam}`]: updatedMembers });
 
     qc.invalidateQueries(['biofocus-sessions']);
-    onJoined?.({ session: freshSession, team: foundTeam, eleve });
+    onJoined?.({ session: foundSession, team: foundTeam, eleve });
     setLoading(false);
   };
 
