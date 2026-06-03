@@ -1,38 +1,47 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Globe, Leaf, BookOpen, Trophy, User, Flame, X, LogOut, Calendar, Users, ChevronDown } from 'lucide-react';
 
+const NAV_ITEMS = [
+  { name: 'Atlas', icon: Globe, path: 'Atlas' },
+  { name: 'Encyclopédie', icon: BookOpen, path: 'Encyclopedia' },
+  { name: 'Permaculture', icon: Leaf, path: null, externalUrl: 'https://www.permaculturedurosey.org' },
+  { name: 'Quiz', icon: Trophy, path: 'Quiz' },
+  { name: 'Jeux', icon: Flame, path: 'Jeux' },
+  { name: 'Puzzle', icon: Trophy, path: 'Puzzle' },
+  { name: '🀄 Éco-Mahjong', icon: Leaf, path: 'MahjongEco' },
+  { name: 'Recyclage', icon: Leaf, path: 'RecyclageRoleSelection' },
+  { name: 'Micro-ferme', icon: Leaf, path: 'MicroFerme' },
+  { name: 'Missions', icon: Flame, path: 'Missions' },
+  { name: 'Climat', icon: Leaf, path: 'Climate' },
+  { name: 'Biodiversité', icon: Leaf, path: 'Biodiversite' },
+  { name: 'Pollinisation', icon: Leaf, path: 'Pollinisation' },
+  { name: 'Écosphère', icon: BookOpen, path: 'Ecosphere' },
+  { name: '🔬 Bio-Focus', icon: Flame, path: 'BioFocus' },
+  { name: '📊 Présentation', icon: BookOpen, path: 'Presentation' },
+  { name: '🔑 Abonnement', icon: Globe, path: 'Abonnement' },
+  { name: '📅 RDV', icon: Calendar, path: 'Agenda' },
+  { name: '📋 Bilan', icon: BookOpen, path: 'BilanPedagogique' },
+  { name: '👥 Élèves', icon: Users, path: 'GestionEleves' },
+  { name: '📸 Photos Mahjong', icon: BookOpen, path: 'AdminEcoPairs', adminOnly: true },
+];
+
 export default function BiolumiHeader({ currentPage }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const hideTimer = useRef(null);
 
-  const navItems = [
-    { name: 'Atlas', icon: Globe, path: 'Atlas' },
-    { name: 'Encyclopédie', icon: BookOpen, path: 'Encyclopedia' },
-    { name: 'Permaculture', icon: Leaf, path: null, externalUrl: 'https://www.permaculturedurosey.org' },
-    { name: 'Quiz', icon: Trophy, path: 'Quiz' },
-    { name: 'Jeux', icon: Flame, path: 'Jeux' },
-    { name: 'Puzzle', icon: Trophy, path: 'Puzzle' },
-    { name: '🀄 Éco-Mahjong', icon: Leaf, path: 'MahjongEco' },
-    { name: 'Recyclage', icon: Leaf, path: 'RecyclageRoleSelection' },
-    { name: 'Micro-ferme', icon: Leaf, path: 'MicroFerme' },
-    { name: 'Missions', icon: Flame, path: 'Missions' },
-    { name: 'Climat', icon: Leaf, path: 'Climate' },
-    { name: 'Biodiversité', icon: Leaf, path: 'Biodiversite' },
-    { name: 'Pollinisation', icon: Leaf, path: 'Pollinisation' },
-    { name: 'Écosphère', icon: BookOpen, path: 'Ecosphere' },
-    { name: '🔬 Bio-Focus', icon: Flame, path: 'BioFocus' },
-    { name: '📊 Présentation', icon: BookOpen, path: 'Presentation' },
-    { name: '🔑 Abonnement', icon: Globe, path: 'Abonnement' },
-    { name: '📅 RDV', icon: Calendar, path: 'Agenda' },
-    { name: '📋 Bilan', icon: BookOpen, path: 'BilanPedagogique' },
-    { name: '👥 Élèves', icon: Users, path: 'GestionEleves' },
-    { name: '📸 Photos Mahjong', icon: BookOpen, path: 'AdminEcoPairs' }
-  ];
+  useEffect(() => {
+    base44.auth.me().then(user => {
+      if (user?.role === 'admin') setIsAdmin(true);
+    }).catch(() => {});
+  }, []);
+
+  const navItems = NAV_ITEMS.filter(item => !item.adminOnly || isAdmin);
 
   const handleLogout = () => {
     base44.auth.redirectToLogin();
