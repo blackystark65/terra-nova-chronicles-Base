@@ -30,7 +30,8 @@ export default function BiolumiHeader({ currentPage }) {
     { name: '🔑 Abonnement', icon: Globe, path: 'Abonnement' },
     { name: '📅 RDV', icon: Calendar, path: 'Agenda' },
     { name: '📋 Bilan', icon: BookOpen, path: 'BilanPedagogique' },
-    { name: '👥 Élèves', icon: Users, path: 'GestionEleves' }
+    { name: '👥 Élèves', icon: Users, path: 'GestionEleves' },
+    { name: '📸 Photos Mahjong', icon: BookOpen, path: 'AdminEcoPairs' }
   ];
 
   const handleLogout = () => {
