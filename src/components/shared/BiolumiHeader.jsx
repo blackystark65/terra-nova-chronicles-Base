@@ -81,7 +81,7 @@ export default function BiolumiHeader({ currentPage }) {
                   src="https://media.base44.com/images/public/6959886137576a65dcfe1370/984ca6837_Institut_Le_Rosey_logo.png"
                   alt="Le Rosey"
                   title="Institut Le Rosey"
-                  style={{ height: '48px', width: 'auto', display: 'block', objectFit: 'contain', filter: 'drop-shadow(0 0 8px rgba(59,130,246,0.5))' }}
+                  style={{ height: '48px', width: 'auto', display: 'block', objectFit: 'contain' }}
                 />
               </a>
               <div className="h-6 w-px bg-white/20 flex-shrink-0" />
