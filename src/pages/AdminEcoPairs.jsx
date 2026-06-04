@@ -183,6 +183,9 @@ export default function AdminEcoPairs() {
   const [secteurFilter, setSecteurFilter] = useState('all');
   const [showExport, setShowExport] = useState(false);
 
+  const [migrating, setMigrating] = useState(false);
+  const [localCount, setLocalCount] = useState(0);
+
   // Chargement depuis la DB au démarrage
   useEffect(() => {
     base44.entities.EcoPairsPhotos.list().then(records => {
@@ -192,7 +195,32 @@ export default function AdminEcoPairs() {
       }
       setLoading(false);
     });
+    // Vérifier si localStorage contient des photos
+    try {
+      const local = JSON.parse(localStorage.getItem('ecoPairsPhotos') || '{}');
+      setLocalCount(Object.values(local).filter(v => v).length);
+    } catch {}
   }, []);
+
+  const handleMigrateFromLocalStorage = async () => {
+    setMigrating(true);
+    try {
+      const local = JSON.parse(localStorage.getItem('ecoPairsPhotos') || '{}');
+      const merged = { ...local, ...savedPhotos }; // DB a priorité
+      if (recordId) {
+        await base44.entities.EcoPairsPhotos.update(recordId, { photos: merged });
+      } else {
+        const created = await base44.entities.EcoPairsPhotos.create({ photos: merged });
+        setRecordId(created.id);
+      }
+      setSavedPhotos(merged);
+      setLocalCount(0);
+      alert(`✅ Migration réussie ! ${Object.values(merged).filter(v => v).length} photos synchronisées.`);
+    } catch (e) {
+      alert('❌ Erreur lors de la migration : ' + e.message);
+    }
+    setMigrating(false);
+  };
 
   const handleSave = async (pairId, role, url) => {
     const key = `${pairId}__${role}`;
@@ -331,6 +359,19 @@ export default function AdminEcoPairs() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {localCount > 0 && (
+          <div className="p-3 rounded-xl bg-orange-500/20 border border-orange-400/40 text-orange-200 text-xs">
+            <p className="font-bold text-orange-300 mb-2">⚠️ {localCount} photos détectées dans le stockage local de CE navigateur (non synchronisées)</p>
+            <button
+              onClick={handleMigrateFromLocalStorage}
+              disabled={migrating}
+              className="w-full py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-sm transition-all disabled:opacity-50"
+            >
+              {migrating ? '⏳ Migration en cours...' : '🔄 Migrer vers la base de données (synchroniser)'}
+            </button>
+          </div>
+        )}
 
         <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-400/20 text-amber-200/80 text-xs leading-relaxed">
           <p className="font-bold text-amber-300 mb-1">💡 Comment ça marche ?</p>
