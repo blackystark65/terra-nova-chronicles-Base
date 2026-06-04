@@ -52,9 +52,6 @@ function buildLevel(pairs) {
   const shuffled = shuffle(pairTiles);
 
   // 4 colonnes, chaque tuile accessible (pas de layer au-dessus)
-  // On place en grille : colonne pair = accessible des deux côtés OK
-  // Pour éviter le blocage gauche+droite, on utilise 4 cols avec tiles espacées
-  const COLS = 4;
   const tiles = shuffled.map((d, i) => ({
     id: i,
     pairId: d.pairId,
@@ -106,8 +103,8 @@ function isMatch(t1, t2) {
   return t1.pairId === t2.pairId && t1.type !== t2.type;
 }
 
-const TILE_W = 70;
-const TILE_H = 82;
+// Taille des tuiles adaptée dynamiquement à l'écran (voir getTileSize)
+const COLS = 4;
 const LAYER_OFFSET = 5;
 
 const SECTEUR_COLORS = {
@@ -228,6 +225,16 @@ function SecteurSelector({ onSelect }) {
   );
 }
 
+// Calcule la taille des tuiles selon la largeur de l'écran
+function getTileSize() {
+  const screenW = window.innerWidth;
+  const padding = 32; // px de marge totale
+  const gap = 8 * (COLS - 1); // espaces entre tuiles
+  const tileW = Math.floor((Math.min(screenW, 600) - padding - gap) / COLS);
+  const tileH = Math.floor(tileW * 1.22);
+  return { tileW, tileH };
+}
+
 // ─── JEU PRINCIPAL ────────────────────────────────────────────────────────────
 function GameBoard({ secteurId, savedPhotos, onBack }) {
   const secteur = secteurId === 'all' ? null : SECTEURS[secteurId];
@@ -250,6 +257,17 @@ function GameBoard({ secteurId, savedPhotos, onBack }) {
   const [lastMatch, setLastMatch] = useState(null);
   const [fichePair, setFichePair] = useState(null);
   const [wonPairs, setWonPairs] = useState([]);
+  const [tileSize, setTileSize] = useState(getTileSize);
+
+  // Responsive: recalculer à chaque resize
+  useEffect(() => {
+    const onResize = () => setTileSize(getTileSize());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const TILE_W = tileSize.tileW + 8; // inclure gap
+  const TILE_H = tileSize.tileH + 8;
 
   // Détection deadlock : aucune paire libre → auto-shuffle silencieux
   useEffect(() => {
@@ -350,8 +368,8 @@ function GameBoard({ secteurId, savedPhotos, onBack }) {
 
   const maxRow = Math.max(...tiles.map(t => t.row)) + 1;
   const maxCol = Math.max(...tiles.map(t => t.col)) + 1;
-  const boardW = (maxCol + 1) * TILE_W + 40;
-  const boardH = (maxRow + 1) * TILE_H + 40;
+  const boardW = maxCol * (tileSize.tileW + 8);
+  const boardH = maxRow * (tileSize.tileH + 8) + 16;
   const sortedTiles = [...tiles].sort((a, b) => a.layer - b.layer || a.row - b.row || a.col - b.col);
 
   const bgClass = colors.bg;
@@ -413,15 +431,20 @@ function GameBoard({ secteurId, savedPhotos, onBack }) {
       </AnimatePresence>
 
       {/* Plateau */}
-      <div className="flex-1 flex items-center justify-center w-full px-1 overflow-auto">
+      <div className="flex-1 flex items-center justify-center w-full px-4 py-2 overflow-auto">
         <div className="relative" style={{ width: boardW, height: boardH }}>
           {sortedTiles.map(tile => {
             if (tile.removed) return null;
             const blocked = isBlocked(tile, activeTiles);
             const isSelected = selected?.id === tile.id;
             const isHinted = hintPair?.includes(tile.id);
-            const x = tile.col * TILE_W + tile.layer * LAYER_OFFSET + 20;
-            const y = tile.row * TILE_H - tile.layer * LAYER_OFFSET + 20;
+            const tw = tileSize.tileW;
+            const th = tileSize.tileH;
+            const x = tile.col * (tw + 8) + tile.layer * LAYER_OFFSET;
+            const y = tile.row * (th + 8) - tile.layer * LAYER_OFFSET;
+            // Taille du texte adaptée à la largeur de la tuile
+            const nameFontSize = tw < 80 ? '9px' : tw < 100 ? '11px' : '13px';
+            const maxChars = tw < 80 ? 9 : tw < 100 ? 12 : 15;
 
             return (
               <motion.div
@@ -431,7 +454,7 @@ function GameBoard({ secteurId, savedPhotos, onBack }) {
                 onClick={() => handleTileClick(tile)}
                 style={{
                   position: 'absolute', left: x, top: y,
-                  width: TILE_W - 4, height: TILE_H - 4,
+                  width: tw, height: th,
                   zIndex: tile.layer * 10 + (isSelected ? 100 : 0),
                   cursor: blocked ? 'not-allowed' : 'pointer',
                 }}
@@ -454,7 +477,7 @@ function GameBoard({ secteurId, savedPhotos, onBack }) {
                   <div className="flex-1 relative overflow-hidden rounded-t-xl">
                     {blocked ? (
                       <div className="w-full h-full bg-slate-600/50 flex items-center justify-center">
-                        <span className="text-slate-400 text-xs">🔒</span>
+                        <span className="text-xl">🔒</span>
                       </div>
                     ) : tile.data.photo ? (
                       <img
@@ -466,30 +489,25 @@ function GameBoard({ secteurId, savedPhotos, onBack }) {
                     ) : null}
                     {!blocked && (
                       <div className="w-full h-full hidden items-center justify-center bg-slate-200">
-                        <span className="text-2xl">{tile.data.emoji}</span>
+                        <span style={{ fontSize: tw < 80 ? '1.5rem' : '2rem' }}>{tile.data.emoji}</span>
                       </div>
                     )}
                   </div>
                   {/* Noms en bas */}
                   {!blocked && (
-                    <div className={`px-0.5 py-0.5 text-center border-t ${tile.type === 'ravageur' ? 'border-red-200 bg-red-50' : 'border-emerald-200 bg-emerald-50'}`}>
-                      <div className={`text-[7.5px] font-bold leading-tight ${tile.type === 'ravageur' ? 'text-red-700' : 'text-emerald-800'}`}>
-                        {tile.data.nomFr.length > 11 ? tile.data.nomFr.slice(0, 10) + '…' : tile.data.nomFr}
+                    <div className={`px-1 py-1 text-center border-t ${tile.type === 'ravageur' ? 'border-red-200 bg-red-50' : 'border-emerald-200 bg-emerald-50'}`}>
+                      <div style={{ fontSize: nameFontSize }} className={`font-bold leading-tight ${tile.type === 'ravageur' ? 'text-red-700' : 'text-emerald-800'}`}>
+                        {tile.data.nomFr.length > maxChars ? tile.data.nomFr.slice(0, maxChars - 1) + '…' : tile.data.nomFr}
                       </div>
-                      {tile.data.nomEn && (
-                        <div className={`text-[6.5px] leading-tight ${tile.type === 'ravageur' ? 'text-red-400' : 'text-emerald-500'}`}>
-                          {tile.data.nomEn.length > 13 ? tile.data.nomEn.slice(0, 12) + '…' : tile.data.nomEn}
-                        </div>
-                      )}
                     </div>
                   )}
                   {/* Point couleur type */}
                   {!blocked && (
-                    <div className={`absolute top-1 right-1 w-2 h-2 rounded-full ${tile.type === 'ravageur' ? 'bg-red-400' : 'bg-emerald-500'}`} />
+                    <div className={`absolute top-1 right-1 w-2.5 h-2.5 rounded-full ${tile.type === 'ravageur' ? 'bg-red-400' : 'bg-emerald-500'}`} />
                   )}
                   {/* Indicateur parasitoïde */}
                   {!blocked && tile.type === 'predateur' && tile.data.type === 'parasitoide' && (
-                    <div className="absolute top-1 left-1 text-[7px] text-violet-500 font-bold">🔬</div>
+                    <div className="absolute top-1 left-1 text-[9px] text-violet-500 font-bold">🔬</div>
                   )}
                 </div>
               </motion.div>
