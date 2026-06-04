@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { ArrowLeft, RotateCcw, Lightbulb, Shuffle, BookOpen } from 'lucide-react';
 import { SECTEURS, ECO_PAIRS_ALL, getPairsBySecteur } from '../data/ecoPairsData';
+import PaireFicheDetail from '../components/mahjong/PaireFicheDetail';
 import { base44 } from '@/api/base44Client';
 
 // Enrichit les paires avec les photos sauvegardées (depuis DB)
@@ -114,60 +115,7 @@ const SECTEUR_COLORS = {
   pepiniere:     { bg: 'from-teal-900 to-cyan-900',       btn: 'bg-teal-600 hover:bg-teal-500',     badge: 'bg-teal-500/20 text-teal-300 border-teal-400/30' },
 };
 
-// ─── COMPOSANT FICHE PAIRE ────────────────────────────────────────────────────
-function PaireFiche({ pair, onClose }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.85, y: 20 }} animate={{ scale: 1, y: 0 }}
-        onClick={e => e.stopPropagation()}
-        className="w-full max-w-sm bg-slate-900 rounded-3xl border border-white/10 overflow-hidden shadow-2xl"
-      >
-        {/* Ravageur */}
-        <div className="p-5 bg-red-900/40 border-b border-white/10">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-4xl">{pair.ravageur.emoji}</span>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-red-300 font-black text-lg">{pair.ravageur.nomFr || pair.ravageur.nom}</span>
-                <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-xs border border-red-400/30">Ravageur</span>
-              </div>
-              <span className="text-red-200/50 text-xs italic">{pair.ravageur.nomScientifique}</span>
-            </div>
-          </div>
-          <p className="text-red-100/80 text-sm leading-relaxed">💥 {pair.ravageur.impact}</p>
-        </div>
-        {/* Flèche */}
-        <div className="text-center py-2 text-white/40 text-xl">↓ combattu par ↓</div>
-        {/* Prédateur */}
-        <div className="p-5 bg-green-900/40">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-4xl">{pair.predateur.emoji}</span>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-green-300 font-black text-lg">{pair.predateur.nomFr || pair.predateur.nom}</span>
-                <span className={`px-2 py-0.5 rounded-full text-xs border ${pair.predateur.type === 'parasitoide' ? 'bg-violet-500/20 text-violet-300 border-violet-400/30' : 'bg-green-500/20 text-green-300 border-green-400/30'}`}>
-                  {pair.predateur.type === 'parasitoide' ? '🔬 Parasitoïde' : '🦁 Prédateur'}
-                </span>
-              </div>
-              <span className="text-green-200/50 text-xs italic">{pair.predateur.nomScientifique}</span>
-            </div>
-          </div>
-          <p className="text-green-100/80 text-sm leading-relaxed">✅ {pair.predateur.explication}</p>
-        </div>
-        <div className="p-4">
-          <button onClick={onClose} className="w-full py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold transition-all">
-            Fermer
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
+// PaireFiche est maintenant importée comme PaireFicheDetail
 
 // ─── ÉCRAN DE SÉLECTION DE SECTEUR ───────────────────────────────────────────
 function SecteurSelector({ onSelect }) {
@@ -544,9 +492,9 @@ function GameBoard({ secteurId, savedPhotos, onBack }) {
         ))}
       </div>
 
-      {/* Fiche paire */}
+      {/* Fiche paire détaillée */}
       <AnimatePresence>
-        {fichePair && <PaireFiche pair={fichePair} onClose={() => setFichePair(null)} />}
+        {fichePair && <PaireFicheDetail pair={fichePair} onClose={() => setFichePair(null)} />}
       </AnimatePresence>
 
       {/* Modal victoire */}
@@ -566,16 +514,22 @@ function GameBoard({ secteurId, savedPhotos, onBack }) {
               <p className="text-4xl font-black text-yellow-300 mb-4">{score} pts</p>
 
               <div className="mb-4 p-3 rounded-2xl bg-black/30 text-left space-y-2">
-                <p className="text-emerald-300 font-bold text-xs mb-2 uppercase tracking-wider">🔬 Les duos découverts :</p>
+                <p className="text-emerald-300 font-bold text-xs mb-2 uppercase tracking-wider">🔬 Les duos découverts — clique pour en savoir plus :</p>
                 {wonPairs.map(p => (
                   <button key={p.id} onClick={() => setFichePair(p)}
-                    className="w-full flex items-center gap-2 text-xs hover:bg-white/5 rounded-lg p-1.5 transition-all text-left">
-                    <span>{p.predateur.emoji}</span>
-                    <span className="text-green-300 font-semibold">{p.predateur.nom}</span>
-                    <span className="text-white/30">→</span>
-                    <span>{p.ravageur.emoji}</span>
-                    <span className="text-red-300">{p.ravageur.nom}</span>
-                    <span className="ml-auto text-white/20 text-[9px]">ℹ️</span>
+                    className="w-full flex items-center gap-2 text-xs hover:bg-white/10 active:bg-white/15 rounded-xl p-2.5 transition-all text-left border border-white/5 hover:border-white/20 group">
+                    <div className="w-8 h-8 rounded-lg overflow-hidden bg-red-900/50 border border-red-500/30 shrink-0">
+                      {p.ravageur.photo ? <img src={p.ravageur.photo} alt="" className="w-full h-full object-cover" /> : <span className="w-full h-full flex items-center justify-center">{p.ravageur.emoji}</span>}
+                    </div>
+                    <span className="text-red-300 font-semibold truncate">{p.ravageur.nomFr || p.ravageur.nom}</span>
+                    <span className="text-white/30 shrink-0">→</span>
+                    <div className="w-8 h-8 rounded-lg overflow-hidden bg-emerald-900/50 border border-emerald-500/30 shrink-0">
+                      {p.predateur.photo ? <img src={p.predateur.photo} alt="" className="w-full h-full object-cover" /> : <span className="w-full h-full flex items-center justify-center">{p.predateur.emoji}</span>}
+                    </div>
+                    <span className="text-emerald-300 font-semibold truncate flex-1">{p.predateur.nomFr || p.predateur.nom}</span>
+                    <div className="shrink-0 w-6 h-6 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center group-hover:bg-amber-500/40 transition-all">
+                      <span className="text-amber-400 text-[10px] font-black">ℹ</span>
+                    </div>
                   </button>
                 ))}
               </div>
