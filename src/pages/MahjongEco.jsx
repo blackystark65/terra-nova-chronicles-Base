@@ -492,11 +492,6 @@ function GameBoard({ secteurId, savedPhotos, onBack }) {
         ))}
       </div>
 
-      {/* Fiche paire détaillée */}
-      <AnimatePresence>
-        {fichePair && <PaireFicheDetail pair={fichePair} onClose={() => setFichePair(null)} />}
-      </AnimatePresence>
-
       {/* Modal victoire */}
       <AnimatePresence>
         {won && (
@@ -546,6 +541,15 @@ function GameBoard({ secteurId, savedPhotos, onBack }) {
               </div>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Fiche paire détaillée — z-60 pour passer au-dessus de la modal victoire */}
+      <AnimatePresence>
+        {fichePair && (
+          <div className="fixed inset-0 z-[60]">
+            <PaireFicheDetail pair={fichePair} onClose={() => setFichePair(null)} />
+          </div>
         )}
       </AnimatePresence>
     </div>
