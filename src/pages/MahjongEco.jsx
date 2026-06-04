@@ -4,28 +4,19 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { ArrowLeft, RotateCcw, Lightbulb, Shuffle, BookOpen } from 'lucide-react';
 import { SECTEURS, ECO_PAIRS_ALL, getPairsBySecteur } from '../data/ecoPairsData';
+import { base44 } from '@/api/base44Client';
 
-// Charge les photos sauvegardées dans localStorage (depuis AdminEcoPairs)
-function loadSavedPhotos() {
-  try {
-    return JSON.parse(localStorage.getItem('ecoPairsPhotos') || '{}');
-  } catch {
-    return {};
-  }
-}
-
-// Enrichit les paires avec les photos sauvegardées
-function enrichPairsWithPhotos(pairs) {
-  const saved = loadSavedPhotos();
+// Enrichit les paires avec les photos sauvegardées (depuis DB)
+function enrichPairsWithPhotos(pairs, savedPhotos) {
   return pairs.map(pair => ({
     ...pair,
     ravageur: {
       ...pair.ravageur,
-      photo: saved[`${pair.id}__ravageur`] || pair.ravageur.photo,
+      photo: savedPhotos[`${pair.id}__ravageur`] || pair.ravageur.photo,
     },
     predateur: {
       ...pair.predateur,
-      photo: saved[`${pair.id}__predateur`] || pair.predateur.photo,
+      photo: savedPhotos[`${pair.id}__predateur`] || pair.predateur.photo,
     },
   }));
 }
@@ -238,14 +229,14 @@ function SecteurSelector({ onSelect }) {
 }
 
 // ─── JEU PRINCIPAL ────────────────────────────────────────────────────────────
-function GameBoard({ secteurId, onBack }) {
+function GameBoard({ secteurId, savedPhotos, onBack }) {
   const secteur = secteurId === 'all' ? null : SECTEURS[secteurId];
   const colors = SECTEUR_COLORS[secteurId] || SECTEUR_COLORS.maraichage;
 
   const pairs = useMemo(() => {
     const raw = secteurId === 'all' ? ECO_PAIRS_ALL : getPairsBySecteur(secteurId);
-    return enrichPairsWithPhotos(shuffle(raw));
-  }, [secteurId]);
+    return enrichPairsWithPhotos(shuffle(raw), savedPhotos);
+  }, [secteurId, savedPhotos]);
 
   const [tiles, setTiles] = useState(() => buildLevel(pairs));
   const [selected, setSelected] = useState(null);
@@ -592,7 +583,22 @@ function GameBoard({ secteurId, onBack }) {
 // ─── PAGE PRINCIPALE ──────────────────────────────────────────────────────────
 export default function MahjongEco() {
   const [secteur, setSecteur] = useState(null);
+  const [savedPhotos, setSavedPhotos] = useState(null);
+
+  useEffect(() => {
+    base44.entities.EcoPairsPhotos.list().then(records => {
+      setSavedPhotos(records.length > 0 ? (records[0].photos || {}) : {});
+    }).catch(() => setSavedPhotos({}));
+  }, []);
+
+  if (savedPhotos === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #1a472a 0%, #2d6a4f 60%, #1b4332 100%)' }}>
+        <div className="w-10 h-10 border-4 border-white/20 border-t-amber-400 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!secteur) return <SecteurSelector onSelect={setSecteur} />;
-  return <GameBoard key={secteur} secteurId={secteur} onBack={() => setSecteur(null)} />;
+  return <GameBoard key={secteur} secteurId={secteur} savedPhotos={savedPhotos} onBack={() => setSecteur(null)} />;
 }

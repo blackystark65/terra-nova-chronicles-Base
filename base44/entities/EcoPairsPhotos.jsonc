@@ -1,0 +1,12 @@
+{
+  "name": "EcoPairsPhotos",
+  "type": "object",
+  "properties": {
+    "photos": {
+      "type": "object",
+      "description": "Dictionnaire cl\u00e9\u2192URL : {pairId__ravageur: url, pairId__predateur: url, ...}",
+      "default": {}
+    }
+  },
+  "required": []
+}
