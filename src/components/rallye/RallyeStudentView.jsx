@@ -5,8 +5,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Camera, CheckCircle, Lock } from 'lucide-react';
 import { RALLYE_DEFIS, RALLYE_TEAMS, calcRallyeScore } from '@/data/rallyeData';
 
-// Identité élève stockée en localStorage
-const STORAGE_KEY = 'tn_rallye_eleve_identity';
+// Identité élève — partage la même clé que Bio-Focus pour éviter la re-saisie
+const STORAGE_KEY = 'tn_eleve_identity'; // même clé que Bio-Focus
 export function getRallyeEleveIdentity() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { return null; }
 }
@@ -17,12 +17,14 @@ function setRallyeEleveIdentity(eleve) {
 // ─── JOIN SCREEN ──────────────────────────────────────────────────────────────
 export function RallyeStudentJoin({ sessions, onJoined }) {
   const qc = useQueryClient();
-  const [step, setStep] = useState('identity');
+  // Pré-charger l'identité depuis Bio-Focus si disponible
+  const savedIdentity = getRallyeEleveIdentity();
+  const [step, setStep] = useState(savedIdentity ? 'team' : 'identity');
   const [identityMode, setIdentityMode] = useState('numero');
   const [numeroInput, setNumeroInput] = useState('');
   const [prenomInput, setPrenomInput] = useState('');
   const [nomInput, setNomInput] = useState('');
-  const [eleveFound, setEleveFound] = useState(null);
+  const [eleveFound, setEleveFound] = useState(savedIdentity || null);
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -158,7 +160,7 @@ export function RallyeStudentJoin({ sessions, onJoined }) {
           className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black disabled:opacity-40 transition-all">
           {loading ? '⏳…' : '🚀 Rejoindre l\'équipe'}
         </button>
-        <button onClick={() => { setStep('identity'); setCode(''); setError(''); }}
+        <button onClick={() => { setStep('identity'); setCode(''); setError(''); setEleveFound(null); localStorage.removeItem(STORAGE_KEY); }}
           className="w-full py-2 text-white/30 text-sm hover:text-white/60 transition-colors">← Changer d'identité</button>
       </div>
       <div className="grid grid-cols-2 gap-3">
