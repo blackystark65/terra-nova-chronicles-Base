@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { Copy, CheckCircle, X, Trash2, Flag } from 'lucide-react';
+import { Copy, CheckCircle, X, Trash2, Flag, UserPlus, Search } from 'lucide-react';
 import { RALLYE_TEAMS, RALLYE_DEFIS, generateCode, calcRallyeScore } from '@/data/rallyeData';
 
 export default function RallyeTeacherPanel({ sessions, user }) {
@@ -52,6 +52,47 @@ export default function RallyeTeacherPanel({ sessions, user }) {
     navigator.clipboard.writeText(code);
     setCopied(key);
     setTimeout(() => setCopied(null), 2000);
+  };
+
+  // --- Gestion formation d'équipes ---
+  const [managingSession, setManagingSession] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState('');
+
+  const handleSearchEleve = async () => {
+    if (!searchQuery.trim()) return;
+    setSearchLoading(true); setSearchError(''); setSearchResults([]);
+    const q = searchQuery.trim().toUpperCase();
+    const all = await base44.entities.Eleve.list('-created_date', 500);
+    const found = all.filter(e =>
+      e.numero?.toUpperCase() === q ||
+      `${e.prenom} ${e.nom}`.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+      `${e.nom} ${e.prenom}`.toLowerCase().includes(searchQuery.trim().toLowerCase())
+    );
+    if (found.length === 0) setSearchError('Aucun élève trouvé.');
+    setSearchResults(found);
+    setSearchLoading(false);
+  };
+
+  const handleAddToTeam = async (session, eleve, teamId) => {
+    const allMembers = [...(session.members_team1 || []), ...(session.members_team2 || [])];
+    if (allMembers.some(m => m.eleve_numero === eleve.numero)) {
+      setSearchError(`${eleve.prenom} ${eleve.nom} est déjà dans une équipe.`); return;
+    }
+    const key = `members_${teamId}`;
+    await base44.entities.RallyeSession.update(session.id, {
+      [key]: [...(session[key] || []), { eleve_id: eleve.id, eleve_numero: eleve.numero, user_name: `${eleve.prenom} ${eleve.nom}` }]
+    });
+    qc.invalidateQueries(['rallye-sessions']);
+    setSearchResults([]); setSearchQuery(''); setSearchError('');
+  };
+
+  const handleRemoveFromTeam = async (session, teamId, indexToRemove) => {
+    const key = `members_${teamId}`;
+    await base44.entities.RallyeSession.update(session.id, { [key]: (session[key] || []).filter((_, i) => i !== indexToRemove) });
+    qc.invalidateQueries(['rallye-sessions']);
   };
 
   const mySessions = sessions.filter(s => s.enseignant_email === user.email);
@@ -137,6 +178,121 @@ export default function RallyeTeacherPanel({ sessions, user }) {
                     )}
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Formation d'équipes par l'enseignant */}
+            {session.status === 'en_cours' && (
+              <div className="p-4 border-b border-white/10">
+                <button
+                  onClick={() => { setManagingSession(managingSession === session.id ? null : session.id); setSearchQuery(''); setSearchResults([]); setSearchError(''); }}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-400/20 text-emerald-300 text-sm font-bold transition-all"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  {managingSession === session.id ? 'Fermer la gestion des équipes' : '👥 Former les équipes (ajouter des élèves)'}
+                </button>
+
+                <AnimatePresence>
+                  {managingSession === session.id && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                      <div className="mt-4 space-y-4">
+                        {/* Ratio équipes */}
+                        {(() => {
+                          const m1 = (session.members_team1 || []).length;
+                          const m2 = (session.members_team2 || []).length;
+                          const total = m1 + m2;
+                          const diff = Math.abs(m1 - m2);
+                          return total > 0 && (
+                            <div className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${diff > 2 ? 'bg-amber-500/10 border-amber-400/20 text-amber-300' : 'bg-emerald-500/10 border-emerald-400/20 text-emerald-300'}`}>
+                              {diff > 2 ? '⚠️' : '✅'} Équipe 1 : {m1} élève{m1 !== 1 ? 's' : ''} — Équipe 2 : {m2} élève{m2 !== 1 ? 's' : ''}
+                              {diff > 2 && <span className="ml-1 text-amber-400/70">(déséquilibre de {diff})</span>}
+                            </div>
+                          );
+                        })()}
+
+                        {/* Recherche */}
+                        <div>
+                          <label className="text-white/60 text-xs mb-1.5 block">Chercher un élève par numéro TN, prénom ou nom</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="text" value={searchQuery}
+                              onChange={e => { setSearchQuery(e.target.value); setSearchError(''); }}
+                              onKeyDown={e => e.key === 'Enter' && handleSearchEleve()}
+                              placeholder="TN-G042 ou Martin Dupont…"
+                              className="flex-1 rounded-xl bg-black/30 border border-white/20 text-white px-3 py-2 text-sm placeholder:text-white/30 focus:outline-none focus:border-emerald-400/50"
+                            />
+                            <button onClick={handleSearchEleve} disabled={searchLoading || !searchQuery.trim()}
+                              className="px-3 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-400/30 transition-all disabled:opacity-40">
+                              {searchLoading ? '⏳' : <Search className="w-4 h-4" />}
+                            </button>
+                          </div>
+                          {searchError && <p className="text-red-300 text-xs mt-1.5">⚠️ {searchError}</p>}
+                        </div>
+
+                        {/* Résultats */}
+                        {searchResults.length > 0 && (
+                          <div className="space-y-2">
+                            {searchResults.map(eleve => {
+                              const alreadyIn = [...(session.members_team1 || []), ...(session.members_team2 || [])].some(m => m.eleve_numero === eleve.numero);
+                              return (
+                                <div key={eleve.id} className={`p-3 rounded-xl border flex items-center justify-between gap-3 border-white/10 bg-white/5 ${alreadyIn ? 'opacity-50' : ''}`}>
+                                  <div>
+                                    <div className="text-white text-sm font-bold">{eleve.prenom} {eleve.nom}</div>
+                                    <div className="text-white/40 text-xs font-mono">{eleve.numero}</div>
+                                    {alreadyIn && <div className="text-amber-400 text-xs">Déjà dans une équipe</div>}
+                                  </div>
+                                  {!alreadyIn && (
+                                    <div className="flex gap-2">
+                                      {RALLYE_TEAMS.map(team => (
+                                        <button key={team.id} onClick={() => handleAddToTeam(session, eleve, team.id)}
+                                          className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${team.bg} ${team.border} text-white hover:opacity-80`}>
+                                          {team.emoji} {team.name}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Listes équipes avec suppression */}
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                          {RALLYE_TEAMS.map(team => {
+                            const members = session[team.membersKey] || [];
+                            return (
+                              <div key={team.id} className={`p-3 rounded-xl border ${team.border} ${team.bg}`}>
+                                <div className="flex items-center gap-1.5 mb-2">
+                                  <span>{team.emoji}</span>
+                                  <span className="text-white/80 text-xs font-bold">{team.name}</span>
+                                  <span className="text-white/40 text-xs">({members.length})</span>
+                                </div>
+                                {members.length === 0
+                                  ? <p className="text-white/30 text-xs italic">Aucun élève</p>
+                                  : <div className="space-y-1">
+                                      {members.map((m, i) => (
+                                        <div key={i} className="flex items-center justify-between gap-1">
+                                          <div>
+                                            <span className="text-xs text-white/70">{m.user_name}</span>
+                                            {m.eleve_numero && <span className="text-[10px] text-white/30 font-mono ml-1">{m.eleve_numero}</span>}
+                                          </div>
+                                          <button onClick={() => handleRemoveFromTeam(session, team.id, i)}
+                                            className="flex-shrink-0 p-0.5 rounded hover:bg-red-500/20 text-white/30 hover:text-red-400 transition-all">
+                                            <X className="w-3 h-3" />
+                                          </button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                }
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             )}
 
