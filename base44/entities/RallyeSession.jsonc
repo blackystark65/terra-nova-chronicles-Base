@@ -1,0 +1,96 @@
+{
+  "name": "RallyeSession",
+  "type": "object",
+  "properties": {
+    "nom_classe": {
+      "type": "string",
+      "description": "Nom de la classe"
+    },
+    "enseignant_email": {
+      "type": "string",
+      "description": "Email de l'enseignant cr\u00e9ateur"
+    },
+    "date_session": {
+      "type": "string",
+      "description": "Date du rallye"
+    },
+    "code_team1": {
+      "type": "string",
+      "description": "Code d'acc\u00e8s \u00e9quipe 1"
+    },
+    "code_team2": {
+      "type": "string",
+      "description": "Code d'acc\u00e8s \u00e9quipe 2"
+    },
+    "members_team1": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "properties": {
+          "user_name": {
+            "type": "string"
+          },
+          "eleve_numero": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "members_team2": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "properties": {
+          "user_name": {
+            "type": "string"
+          },
+          "eleve_numero": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "defis_team1": {
+      "type": "object",
+      "default": {},
+      "description": "\u00c9tat des 7 d\u00e9fis pour l'\u00e9quipe 1 : { defi_id: { validated: bool, score: number, preuves: [urls], timestamp } }"
+    },
+    "defis_team2": {
+      "type": "object",
+      "default": {},
+      "description": "\u00c9tat des 7 d\u00e9fis pour l'\u00e9quipe 2"
+    },
+    "score_team1": {
+      "type": "number",
+      "default": 0
+    },
+    "score_team2": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "en_cours",
+        "termine"
+      ],
+      "default": "en_cours"
+    },
+    "winner_team": {
+      "type": "string",
+      "enum": [
+        "team1",
+        "team2",
+        "egalite"
+      ]
+    }
+  },
+  "required": [
+    "nom_classe",
+    "enseignant_email",
+    "code_team1",
+    "code_team2"
+  ]
+}
