@@ -6,28 +6,30 @@ import { base44 } from '@/api/base44Client';
 import { Globe, Leaf, BookOpen, Trophy, User, Flame, X, LogOut, Calendar, Users, ChevronDown } from 'lucide-react';
 
 const NAV_ITEMS = [
+  // ── Contenu environnemental & pédagogique (ordre alphabétique) ──
   { name: 'Atlas', icon: Globe, path: 'Atlas' },
+  { name: 'Biodiversité', icon: Leaf, path: 'Biodiversite' },
+  { name: 'Bio-Focus 🔬', icon: Flame, path: 'BioFocus' },
+  { name: 'Climat', icon: Leaf, path: 'Climate' },
+  { name: 'Éco-Mahjong 🀄', icon: Leaf, path: 'MahjongEco' },
+  { name: 'Écosphère', icon: BookOpen, path: 'Ecosphere' },
   { name: 'Encyclopédie', icon: BookOpen, path: 'Encyclopedia' },
-  { name: 'Permaculture', icon: Leaf, path: null, externalUrl: 'https://www.permaculturedurosey.org' },
-  { name: 'Quiz', icon: Trophy, path: 'Quiz' },
   { name: 'Jeux', icon: Flame, path: 'Jeux' },
-  { name: 'Puzzle', icon: Trophy, path: 'Puzzle' },
-  { name: '🀄 Éco-Mahjong', icon: Leaf, path: 'MahjongEco' },
-  { name: 'Recyclage', icon: Leaf, path: 'RecyclageRoleSelection' },
   { name: 'Micro-ferme', icon: Leaf, path: 'MicroFerme' },
   { name: 'Missions', icon: Flame, path: 'Missions' },
-  { name: 'Climat', icon: Leaf, path: 'Climate' },
-  { name: 'Biodiversité', icon: Leaf, path: 'Biodiversite' },
+  { name: 'Permaculture', icon: Leaf, path: null, externalUrl: 'https://www.permaculturedurosey.org' },
   { name: 'Pollinisation', icon: Leaf, path: 'Pollinisation' },
-  { name: 'Écosphère', icon: BookOpen, path: 'Ecosphere' },
-  { name: '🔬 Bio-Focus', icon: Flame, path: 'BioFocus' },
-  { name: '📊 Présentation', icon: BookOpen, path: 'Presentation' },
-  { name: '🔑 Abonnement', icon: Globe, path: 'Abonnement' },
-  { name: '📅 RDV', icon: Calendar, path: 'Agenda' },
-  { name: '📋 Bilan', icon: BookOpen, path: 'BilanPedagogique' },
-  { name: '👥 Élèves', icon: Users, path: 'GestionEleves' },
+  { name: 'Puzzle', icon: Trophy, path: 'Puzzle' },
+  { name: 'Quiz', icon: Trophy, path: 'Quiz' },
+  { name: 'Rallye 🌿', icon: Leaf, path: 'RallyeEcoSentinelles' },
+  { name: 'Recyclage', icon: Leaf, path: 'RecyclageRoleSelection' },
+  // ── Espace enseignant & admin (ordre alphabétique) ──
+  { name: '📋 Bilan', icon: BookOpen, path: 'BilanPedagogique', teacherOnly: true },
+  { name: '👥 Élèves', icon: Users, path: 'GestionEleves', teacherOnly: true },
+  { name: '📊 Présentation', icon: BookOpen, path: 'Presentation', teacherOnly: true },
+  { name: '📅 RDV', icon: Calendar, path: 'Agenda', teacherOnly: true },
+  { name: '🔑 Abonnement', icon: Globe, path: 'Abonnement', teacherOnly: true },
   { name: '📸 Photos Mahjong', icon: BookOpen, path: 'AdminEcoPairs', adminOnly: true },
-  { name: '🌿 Rallye', icon: Leaf, path: 'RallyeEcoSentinelles' },
 ];
 
 export default function BiolumiHeader({ currentPage }) {
@@ -131,47 +133,43 @@ export default function BiolumiHeader({ currentPage }) {
                 </div>
               </motion.button>
               
-              {navItems.map((item) => {
+              {navItems.map((item, idx) => {
                 const isActive = currentPage === item.path;
                 const Icon = item.icon;
-
-                if (item.externalUrl) {
-                  return (
-                    <a key={item.name} href={item.externalUrl}>
-                      <motion.div
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="group relative px-2 py-1.5 rounded-xl bg-blue-900/40 hover:bg-blue-800/60 border border-blue-500/30 hover:border-blue-400/60 transition-all duration-300"
-                      >
-                        <div className="relative flex items-center gap-1.5">
-                          <Icon className="w-3.5 h-3.5 text-blue-300 group-hover:text-blue-200 transition-all" />
-                          <span className="text-xs font-semibold text-blue-200 group-hover:text-white transition-all">{item.name}</span>
-                        </div>
-                      </motion.div>
-                    </a>
-                  );
-                }
+                const isTeacherSection = item.teacherOnly || item.adminOnly;
+                const prevItem = navItems[idx - 1];
+                const prevIsTeacherSection = prevItem && (prevItem.teacherOnly || prevItem.adminOnly);
+                const showSeparator = isTeacherSection && !prevIsTeacherSection;
 
                 return (
-                  <Link key={item.path} to={createPageUrl(item.path)}>
-                    <motion.div
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`
-                        relative px-2 py-1.5 rounded-xl
-                        transition-all duration-300
-                        ${isActive ?
-                          'bg-blue-600 shadow-lg shadow-blue-500/30 border border-blue-500' :
-                          'bg-blue-900/40 hover:bg-blue-800/60 border border-blue-500/30 hover:border-blue-400/60'}
-                      `}>
-                      <div className="relative flex items-center gap-1.5">
-                        <Icon className={`w-3 h-3 ${isActive ? 'text-white' : 'text-blue-300'}`} />
-                        <span className={`text-xs font-semibold ${isActive ? 'text-white' : 'text-blue-200'}`}>
-                          {item.name}
-                        </span>
-                      </div>
-                    </motion.div>
-                  </Link>
+                  <React.Fragment key={item.name}>
+                    {showSeparator && <div className="w-px h-5 bg-white/20 mx-1 self-center" />}
+                    {item.externalUrl ? (
+                      <a href={item.externalUrl}>
+                        <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}
+                          className="group relative px-2 py-1.5 rounded-xl bg-blue-900/40 hover:bg-blue-800/60 border border-blue-500/30 hover:border-blue-400/60 transition-all duration-300">
+                          <div className="relative flex items-center gap-1.5">
+                            <Icon className="w-3.5 h-3.5 text-blue-300 group-hover:text-blue-200 transition-all" />
+                            <span className="text-xs font-semibold text-blue-200 group-hover:text-white transition-all">{item.name}</span>
+                          </div>
+                        </motion.div>
+                      </a>
+                    ) : (
+                      <Link to={createPageUrl(item.path)}>
+                        <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}
+                          className={`relative px-2 py-1.5 rounded-xl transition-all duration-300
+                            ${isTeacherSection ? 'bg-violet-900/40 hover:bg-violet-800/60 border border-violet-500/30 hover:border-violet-400/60' : 'bg-blue-900/40 hover:bg-blue-800/60 border border-blue-500/30 hover:border-blue-400/60'}
+                            ${isActive ? '!bg-blue-600 !border-blue-500 shadow-lg shadow-blue-500/30' : ''}`}>
+                          <div className="relative flex items-center gap-1.5">
+                            <Icon className={`w-3 h-3 ${isActive ? 'text-white' : isTeacherSection ? 'text-violet-300' : 'text-blue-300'}`} />
+                            <span className={`text-xs font-semibold ${isActive ? 'text-white' : isTeacherSection ? 'text-violet-200' : 'text-blue-200'}`}>
+                              {item.name}
+                            </span>
+                          </div>
+                        </motion.div>
+                      </Link>
+                    )}
+                  </React.Fragment>
                 );
               })}
               
@@ -245,43 +243,44 @@ export default function BiolumiHeader({ currentPage }) {
                   <span className="text-base font-medium text-red-300">Déconnexion</span>
                 </motion.button>
 
-                {navItems.map((item) => {
+                {navItems.map((item, idx) => {
                   const isActive = currentPage === item.path;
                   const Icon = item.icon;
-
-                  if (item.externalUrl) {
-                    return (
-                      <a key={item.name} href={item.externalUrl} onClick={() => setMobileMenuOpen(false)}>
-                        <motion.div
-                          whileTap={{ scale: 0.95 }}
-                          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-900/40 border border-blue-500/30 transition-all duration-300"
-                        >
-                          <Icon className="w-5 h-5 text-blue-300" />
-                          <span className="text-base font-semibold text-blue-200">{item.name}</span>
-                        </motion.div>
-                      </a>
-                    );
-                  }
+                  const isTeacherSection = item.teacherOnly || item.adminOnly;
+                  const prevItem = navItems[idx - 1];
+                  const prevIsTeacherSection = prevItem && (prevItem.teacherOnly || prevItem.adminOnly);
+                  const showSeparator = isTeacherSection && !prevIsTeacherSection;
 
                   return (
-                    <Link key={item.path} to={createPageUrl(item.path)} onClick={() => setMobileMenuOpen(false)}>
-                      <motion.div
-                        whileTap={{ scale: 0.95 }}
-                        className={`
-                          flex items-center gap-3 px-4 py-3 rounded-xl
-                          transition-all duration-300
-                          ${isActive ?
-                            'bg-blue-600 shadow-lg border border-blue-500' :
-                            'bg-blue-900/40 border border-blue-500/30'
-                          }
-                        `}
-                      >
-                        <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-blue-300'}`} />
-                        <span className={`text-base font-semibold ${isActive ? 'text-white' : 'text-blue-200'}`}>
-                          {item.name}
-                        </span>
-                      </motion.div>
-                    </Link>
+                    <React.Fragment key={item.name}>
+                      {showSeparator && (
+                        <div className="flex items-center gap-2 pt-2 pb-1">
+                          <div className="flex-1 h-px bg-violet-500/30" />
+                          <span className="text-violet-400/60 text-xs font-bold uppercase tracking-wider">Enseignant / Admin</span>
+                          <div className="flex-1 h-px bg-violet-500/30" />
+                        </div>
+                      )}
+                      {item.externalUrl ? (
+                        <a href={item.externalUrl} onClick={() => setMobileMenuOpen(false)}>
+                          <motion.div whileTap={{ scale: 0.95 }}
+                            className="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-900/40 border border-blue-500/30 transition-all duration-300">
+                            <Icon className="w-5 h-5 text-blue-300" />
+                            <span className="text-base font-semibold text-blue-200">{item.name}</span>
+                          </motion.div>
+                        </a>
+                      ) : (
+                        <Link to={createPageUrl(item.path)} onClick={() => setMobileMenuOpen(false)}>
+                          <motion.div whileTap={{ scale: 0.95 }}
+                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300
+                              ${isActive ? 'bg-blue-600 shadow-lg border border-blue-500' : isTeacherSection ? 'bg-violet-900/40 border border-violet-500/30' : 'bg-blue-900/40 border border-blue-500/30'}`}>
+                            <Icon className={`w-5 h-5 ${isActive ? 'text-white' : isTeacherSection ? 'text-violet-300' : 'text-blue-300'}`} />
+                            <span className={`text-base font-semibold ${isActive ? 'text-white' : isTeacherSection ? 'text-violet-200' : 'text-blue-200'}`}>
+                              {item.name}
+                            </span>
+                          </motion.div>
+                        </Link>
+                      )}
+                    </React.Fragment>
                   );
                 })}
               </div>
