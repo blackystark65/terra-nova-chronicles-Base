@@ -25,6 +25,7 @@ import BiomeSolPage from './pages/BiomeSol';
 import GestionElevesPage from './pages/GestionEleves';
 import MahjongEcoPage from './pages/MahjongEco';
 import AdminEcoPairsPage from './pages/AdminEcoPairs';
+import RallyeEcoSentinellesPage from './pages/RallyeEcoSentinelles';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -94,6 +95,7 @@ const AuthenticatedApp = () => {
       <Route path="/GestionEleves" element={<LayoutWrapper currentPageName="GestionEleves"><GestionElevesPage /></LayoutWrapper>} />
       <Route path="/MahjongEco" element={<LayoutWrapper currentPageName="MahjongEco"><MahjongEcoPage /></LayoutWrapper>} />
       <Route path="/AdminEcoPairs" element={<LayoutWrapper currentPageName="AdminEcoPairs"><AdminEcoPairsPage /></LayoutWrapper>} />
+      <Route path="/RallyeEcoSentinelles" element={<LayoutWrapper currentPageName="RallyeEcoSentinelles"><RallyeEcoSentinellesPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
