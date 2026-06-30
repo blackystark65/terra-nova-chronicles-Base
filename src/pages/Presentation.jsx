@@ -431,6 +431,110 @@ const SLIDES = [
     ),
   },
 
+  // 7c — Rallye des Éco-Sentinelles
+  {
+    id: 'rallye',
+    bg: 'from-green-950 via-emerald-950 to-amber-950',
+    title: '🌍 Rallye Éco-Sentinelles',
+    content: (
+      <div className="px-8 py-8 max-w-5xl mx-auto">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="p-3 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 text-4xl">🌍</div>
+          <div>
+            <h2 className="text-3xl md:text-4xl font-black text-white">Rallye des Éco-Sentinelles</h2>
+            <p className="text-emerald-400/60 text-sm">Escape game pédagogique hybride — Intérieur & Terrain — 2 équipes</p>
+          </div>
+        </div>
+        <p className="text-emerald-200/70 text-base mb-5 leading-relaxed">
+          Un jeu de territoire en <strong className="text-amber-300">2 équipes</strong> articulant <strong className="text-blue-300">mini-jeux numériques intérieurs</strong> et <strong className="text-amber-300">défis de terrain extérieurs</strong>. 7 défis pour collecter les clés du <strong className="text-amber-300">Coffre de la Planète</strong>.
+        </p>
+        <div className="grid md:grid-cols-2 gap-5 mb-5">
+          <div className="p-5 rounded-2xl bg-blue-500/10 border border-blue-400/20">
+            <h3 className="font-bold text-blue-300 mb-3">🖥️ 4 défis Intérieurs — 100 pts chacun</h3>
+            <div className="space-y-3">
+              {[
+                { e: '⚡', t: 'Énergie — Chasse aux Veilles', d: 'Sélectionner les appareils qui consomment inutilement. Mini-jeu de sélection multiple.', m: 'SOLEIL' },
+                { e: '💧', t: 'Eau — Brigade des Gouttes', d: 'Associer chaque geste quotidien à sa vraie consommation en litres.', m: 'RIVIÈRE' },
+                { e: '🚲', t: 'Mobilité Douce — Le Bon Trajet', d: 'Quiz séquentiel : choisir le transport le moins polluant selon la distance.', m: 'PÉDALE' },
+                { e: '♻️', t: 'Économie Circulaire — La Seconde Vie', d: 'Attribuer la bonne action (réparer, réutiliser, recycler) à chaque objet.', m: 'RÉPARE' },
+              ].map((d, i) => (
+                <div key={i} className="flex gap-3 items-start">
+                  <span className="text-xl flex-shrink-0">{d.e}</span>
+                  <div>
+                    <p className="text-blue-200 font-bold text-xs">{d.t}</p>
+                    <p className="text-blue-200/50 text-xs">{d.d}</p>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-black">🗝️ {d.m}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-400/20">
+            <h3 className="font-bold text-amber-300 mb-3">🌿 3 défis Terrain — 150 pts chacun</h3>
+            <div className="space-y-3">
+              {[
+                { e: '🥗', t: 'Alimentation — Mission Terrain', d: 'Photographier 3 exemples : gaspillage alimentaire observé, compostage, produit local ou de saison.', m: 'COMPOST' },
+                { e: '🌍', t: 'Voyages Locaux — Explorateurs de Proximité', d: 'Photographier 3 richesses naturelles ou culturelles de votre région à découvrir sans avion.', m: 'NATURE' },
+                { e: '🥕', t: 'Circuits Courts — Le Marché Local', d: 'Photographier un marché ou producteur local, un produit de saison, un jardin partagé.', m: 'SAISON' },
+              ].map((d, i) => (
+                <div key={i} className="flex gap-3 items-start">
+                  <span className="text-xl flex-shrink-0">{d.e}</span>
+                  <div>
+                    <p className="text-amber-200 font-bold text-xs">{d.t}</p>
+                    <p className="text-amber-200/50 text-xs">{d.d}</p>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-black">🗝️ {d.m}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 p-2 rounded-xl bg-amber-500/10 border border-amber-400/20 text-xs text-amber-200/70">
+              📷 L'enseignant <strong className="text-white">valide les photos</strong> depuis son panneau avant d'accorder les points.
+            </div>
+          </div>
+        </div>
+        <div className="grid md:grid-cols-4 gap-4 mb-4">
+          <div className="p-4 rounded-2xl bg-sky-500/10 border border-sky-400/20 text-center">
+            <p className="text-sky-300 font-bold text-xs mb-1">👩‍🏫 Enseignant</p>
+            <ul className="text-left text-xs text-sky-200/70 space-y-1">
+              <li>• Crée session + 2 codes</li>
+              <li>• Valide les preuves terrain</li>
+              <li>• Suit scores en temps réel</li>
+              <li>• Clôture → gagnant</li>
+            </ul>
+          </div>
+          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-400/20 text-center">
+            <p className="text-emerald-300 font-bold text-xs mb-1">🎒 Élèves</p>
+            <ul className="text-left text-xs text-emerald-200/70 space-y-1">
+              <li>• Prénom + code équipe</li>
+              <li>• Jeux dans l'app</li>
+              <li>• Photos dehors</li>
+              <li>• Collectent les clés</li>
+            </ul>
+          </div>
+          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-center">
+            <div className="text-2xl mb-1">⏱️</div>
+            <p className="text-white/70 font-bold text-xs">Durée</p>
+            <p className="text-white font-black text-sm">45 min – 1h30</p>
+          </div>
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-400/20 text-center">
+            <div className="text-2xl mb-1">🏆</div>
+            <p className="text-amber-300 font-bold text-xs">Score max</p>
+            <p className="text-white font-black text-xl">850 pts</p>
+            <p className="text-amber-200/60 text-xs">4×100 + 3×150</p>
+          </div>
+        </div>
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-400/20 text-center text-sm text-emerald-200/80">
+          🗝️ Les 7 mots-clés assemblés — <strong className="text-amber-300">SOLEIL · RIVIÈRE · COMPOST · PÉDALE · NATURE · SAISON · RÉPARE</strong> — forment le code secret du Coffre de la Planète !
+        </div>
+        <Link to={createPageUrl('RallyeEcoSentinelles')}>
+          <button className="mt-4 w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black hover:from-emerald-500 hover:to-teal-500 transition-all">
+            🌍 Accéder au Rallye des Éco-Sentinelles →
+          </button>
+        </Link>
+      </div>
+    ),
+  },
+
   // 8 — Agenda & Bilans
   {
     id: 'agenda-bilan',

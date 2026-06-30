@@ -721,6 +721,96 @@ const SLIDES = [
     ),
   },
 
+  // ── SLIDE Rallye des Éco-Sentinelles ──
+  {
+    id: 'rallye',
+    bg: 'from-green-950 via-emerald-950 to-amber-950',
+    content: (
+      <div className="px-8 py-8 max-w-4xl mx-auto">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="p-3 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 text-3xl">🌍</div>
+          <div>
+            <h2 className="text-3xl font-black text-white">Rallye des Éco-Sentinelles</h2>
+            <p className="text-emerald-400/60 text-sm">Jeu hybride — 7 défis • Intérieur + Terrain • 2 équipes</p>
+          </div>
+        </div>
+        <p className="text-emerald-200/70 text-base mb-5 leading-relaxed">
+          Un escape game pédagogique en <strong className="text-amber-300">2 équipes</strong> autour du développement durable. Chaque équipe doit valider <strong className="text-emerald-300">7 défis écologiques</strong> pour collecter les clés du <strong className="text-amber-300">Coffre de la Planète</strong>.
+        </p>
+        <div className="grid md:grid-cols-2 gap-4 mb-5">
+          <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-400/20">
+            <h3 className="font-bold text-blue-300 mb-3">🖥️ 4 défis Intérieurs (100 pts chacun)</h3>
+            <div className="space-y-2">
+              {[
+                { e: '⚡', t: 'Énergie', d: 'Identifie les appareils en veille qui gaspillent' },
+                { e: '💧', t: 'Eau', d: 'Associe chaque action à sa consommation réelle' },
+                { e: '🚲', t: 'Mobilité douce', d: 'Choisis le transport le moins polluant' },
+                { e: '♻️', t: 'Économie circulaire', d: 'Applique les 3R à chaque objet' },
+              ].map((d, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  <span>{d.e}</span>
+                  <span className="text-blue-300 font-bold">{d.t}</span>
+                  <span className="text-white/40 text-xs">— {d.d}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-400/20">
+            <h3 className="font-bold text-amber-300 mb-3">🌿 3 défis Terrain (150 pts chacun)</h3>
+            <div className="space-y-2">
+              {[
+                { e: '🥗', t: 'Alimentation', d: 'Photo gaspillage alimentaire ou compostage' },
+                { e: '🌍', t: 'Voyages locaux', d: 'Photo richesses naturelles de votre région' },
+                { e: '🥕', t: 'Circuits courts', d: 'Photo marché local ou producteur direct' },
+              ].map((d, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  <span>{d.e}</span>
+                  <span className="text-amber-300 font-bold">{d.t}</span>
+                  <span className="text-white/40 text-xs">— {d.d}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="grid md:grid-cols-3 gap-4 mb-5">
+          <div className="p-4 rounded-2xl bg-sky-500/10 border border-sky-400/20">
+            <h3 className="font-bold text-sky-300 text-sm mb-2">👩‍🏫 L'enseignant</h3>
+            <ul className="space-y-1 text-xs text-sky-200/70">
+              <li>• Crée la session, génère 2 codes équipe</li>
+              <li>• Surveille la progression en temps réel</li>
+              <li>• <strong className="text-white">Valide les preuves photos terrain</strong></li>
+              <li>• Clôture et annonce le gagnant</li>
+            </ul>
+          </div>
+          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-400/20">
+            <h3 className="font-bold text-emerald-300 text-sm mb-2">🎒 Les élèves</h3>
+            <ul className="space-y-1 text-xs text-emerald-200/70">
+              <li>• Rejoignent avec prénom + code équipe</li>
+              <li>• Alternent jeux intérieurs et terrain</li>
+              <li>• Photographient des preuves réelles dehors</li>
+              <li>• Collectent les 7 clés → code secret !</li>
+            </ul>
+          </div>
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-400/20 text-center">
+            <div className="text-3xl mb-2">🏆</div>
+            <div className="text-amber-300 font-bold text-sm">Score max</div>
+            <div className="text-white font-black text-2xl">850 pts</div>
+            <div className="text-amber-200/60 text-xs">4×100 + 3×150</div>
+            <div className="mt-2 text-amber-300/70 text-xs">Durée : 45 min – 1h30</div>
+          </div>
+        </div>
+        <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-400/20 text-center text-emerald-200/80 text-xs">
+          🗝️ Chaque défi validé révèle un <strong className="text-amber-300">mot-clé</strong> : les 7 mots assemblés forment le code secret du Coffre de la Planète !
+        </div>
+        <Link to={createPageUrl('RallyeEcoSentinelles')}>
+          <button className="mt-4 w-full py-3 rounded-xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 font-bold hover:bg-emerald-500/30 transition-all">
+            🌍 Accéder au Rallye →
+          </button>
+        </Link>
+      </div>
+    ),
+  },
+
   // ── SLIDE Agenda Terrain & Rapports ──
   {
     id: 'agenda-rapports',
