@@ -5,26 +5,60 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Camera, CheckCircle, Lock } from 'lucide-react';
 import { RALLYE_DEFIS, RALLYE_TEAMS, calcRallyeScore } from '@/data/rallyeData';
 
+// Identité élève stockée en localStorage
+const STORAGE_KEY = 'tn_rallye_eleve_identity';
+export function getRallyeEleveIdentity() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { return null; }
+}
+function setRallyeEleveIdentity(eleve) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(eleve));
+}
+
 // ─── JOIN SCREEN ──────────────────────────────────────────────────────────────
 export function RallyeStudentJoin({ sessions, onJoined }) {
   const qc = useQueryClient();
   const [step, setStep] = useState('identity');
-  const [prenom, setPrenom] = useState('');
-  const [nom, setNom] = useState('');
+  const [identityMode, setIdentityMode] = useState('numero');
+  const [numeroInput, setNumeroInput] = useState('');
+  const [prenomInput, setPrenomInput] = useState('');
+  const [nomInput, setNomInput] = useState('');
   const [eleveFound, setEleveFound] = useState(null);
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleIdentify = async () => {
-    if (!prenom.trim() || !nom.trim()) return;
-    setEleveFound({ prenom: prenom.trim(), nom: nom.trim() });
-    setStep('team');
+    setError(''); setLoading(true);
+    try {
+      let results = [];
+      if (identityMode === 'numero') {
+        const num = numeroInput.trim().toUpperCase();
+        results = await base44.entities.Eleve.filter({ numero: num });
+      } else {
+        const allEleves = await base44.entities.Eleve.list('-created_date', 500);
+        results = allEleves.filter(e =>
+          e.prenom?.toLowerCase() === prenomInput.trim().toLowerCase() &&
+          e.nom?.toLowerCase() === nomInput.trim().toLowerCase()
+        );
+      }
+      if (!results || results.length === 0) {
+        setError("Élève non trouvé. Vérifiez votre numéro ou nom/prénom avec votre enseignant(e).");
+        setLoading(false); return;
+      }
+      const eleve = results[0];
+      setRallyeEleveIdentity(eleve);
+      setEleveFound(eleve);
+      setStep('team');
+    } catch {
+      setError("Erreur de connexion. Réessayez.");
+    }
+    setLoading(false);
   };
 
   const handleJoin = async () => {
     setError(''); setLoading(true);
     const codeUp = code.toUpperCase().trim();
+    const eleve = eleveFound;
     let foundSession = null, foundTeam = null;
     for (const session of sessions) {
       if (session.status !== 'en_cours') continue;
@@ -34,14 +68,21 @@ export function RallyeStudentJoin({ sessions, onJoined }) {
     if (!foundSession) { setError('Code invalide ou session terminée.'); setLoading(false); return; }
 
     const key = `members_${foundTeam}`;
-    const already = (foundSession[key] || []).some(m => m.user_name === `${eleveFound.prenom} ${eleveFound.nom}`);
-    if (!already) {
-      await base44.entities.RallyeSession.update(foundSession.id, {
-        [key]: [...(foundSession[key] || []), { user_name: `${eleveFound.prenom} ${eleveFound.nom}` }]
-      });
+    const allMembers = [...(foundSession.members_team1 || []), ...(foundSession.members_team2 || [])];
+    if (allMembers.some(m => m.eleve_numero === eleve.numero)) {
+      setError('Vous êtes déjà inscrit dans cette session.');
+      setLoading(false); return;
     }
+    const newMember = {
+      eleve_id: eleve.id,
+      eleve_numero: eleve.numero,
+      user_name: `${eleve.prenom} ${eleve.nom}`,
+    };
+    await base44.entities.RallyeSession.update(foundSession.id, {
+      [key]: [...(foundSession[key] || []), newMember]
+    });
     qc.invalidateQueries(['rallye-sessions']);
-    onJoined?.({ session: foundSession, team: foundTeam, eleve: eleveFound });
+    onJoined?.({ session: foundSession, team: foundTeam, eleve });
     setLoading(false);
   };
 
@@ -50,17 +91,49 @@ export function RallyeStudentJoin({ sessions, onJoined }) {
       <div className="text-center mb-6">
         <div className="text-6xl mb-3">🎒</div>
         <h2 className="text-2xl font-black text-white mb-1">Qui es-tu ?</h2>
-        <p className="text-white/50 text-sm">Entre ton prénom et ton nom pour rejoindre le Rallye</p>
+        <p className="text-white/50 text-sm">Identifie-toi pour rejoindre le Rallye</p>
       </div>
-      <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-        <input value={prenom} onChange={e => setPrenom(e.target.value)} placeholder="Ton prénom"
-          className="w-full rounded-xl bg-black/30 border border-white/20 text-white px-4 py-3 text-sm placeholder:text-white/30 focus:outline-none" />
-        <input value={nom} onChange={e => setNom(e.target.value)} placeholder="Ton nom"
-          className="w-full rounded-xl bg-black/30 border border-white/20 text-white px-4 py-3 text-sm placeholder:text-white/30 focus:outline-none" />
-        <button onClick={handleIdentify} disabled={!prenom.trim() || !nom.trim()}
+      <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+        <div className="flex gap-2">
+          <button onClick={() => { setIdentityMode('numero'); setError(''); }}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold border transition-all ${identityMode === 'numero' ? 'bg-emerald-500/20 border-emerald-400/50 text-emerald-300' : 'bg-white/5 border-white/10 text-white/40'}`}>
+            🔢 Mon numéro
+          </button>
+          <button onClick={() => { setIdentityMode('nom'); setError(''); }}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold border transition-all ${identityMode === 'nom' ? 'bg-blue-500/20 border-blue-400/50 text-blue-300' : 'bg-white/5 border-white/10 text-white/40'}`}>
+            👤 Mon nom
+          </button>
+        </div>
+
+        {identityMode === 'numero' ? (
+          <div>
+            <label className="text-white/60 text-xs mb-1 block">Numéro élève (sur ta carte ou liste de classe)</label>
+            <input value={numeroInput} onChange={e => { setNumeroInput(e.target.value.toUpperCase()); setError(''); }}
+              placeholder="TN-G042 ou TN-F017"
+              className="w-full text-center text-xl font-black tracking-widest rounded-xl bg-black/30 border border-white/20 text-white px-4 py-4 focus:outline-none focus:border-emerald-400/50 uppercase"
+              autoCapitalize="characters" />
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <input value={prenomInput} onChange={e => { setPrenomInput(e.target.value); setError(''); }}
+              placeholder="Ton prénom"
+              className="w-full rounded-xl bg-black/30 border border-white/20 text-white px-4 py-3 text-sm placeholder:text-white/30 focus:outline-none" />
+            <input value={nomInput} onChange={e => { setNomInput(e.target.value); setError(''); }}
+              placeholder="Ton nom de famille"
+              className="w-full rounded-xl bg-black/30 border border-white/20 text-white px-4 py-3 text-sm placeholder:text-white/30 focus:outline-none" />
+          </div>
+        )}
+
+        {error && <div className="p-3 rounded-xl bg-red-500/10 border border-red-400/20 text-red-300 text-sm text-center">⚠️ {error}</div>}
+
+        <button onClick={handleIdentify}
+          disabled={loading || (identityMode === 'numero' ? numeroInput.length < 5 : !prenomInput.trim() || !nomInput.trim())}
           className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black disabled:opacity-40 transition-all">
-          Continuer →
+          {loading ? '⏳ Recherche…' : '✅ Continuer'}
         </button>
+      </div>
+      <div className="mt-2 p-3 rounded-xl bg-white/5 border border-white/5 text-white/30 text-xs text-center">
+        Tu ne te souviens pas de ton numéro ? Demande à ton enseignant(e). Les garçons ont TN-G…, les filles TN-F…
       </div>
     </div>
   );
@@ -71,6 +144,7 @@ export function RallyeStudentJoin({ sessions, onJoined }) {
         <div className="text-5xl mb-3">🔑</div>
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-400/30 mb-3">
           <span className="text-emerald-300 font-bold text-sm">👤 {eleveFound.prenom} {eleveFound.nom}</span>
+          <span className="text-emerald-400/50 font-mono text-xs">{eleveFound.numero}</span>
         </div>
         <h2 className="text-xl font-black text-white mb-1">Code équipe</h2>
         <p className="text-white/50 text-sm">Entre le code donné par ton enseignant(e)</p>
@@ -79,13 +153,13 @@ export function RallyeStudentJoin({ sessions, onJoined }) {
         <input type="text" value={code} onChange={e => { setCode(e.target.value.toUpperCase()); setError(''); }}
           placeholder="ABC123" maxLength={6}
           className="w-full text-center text-2xl font-black tracking-widest rounded-xl bg-black/30 border border-white/20 text-white px-4 py-4 focus:outline-none uppercase" />
-        {error && <p className="text-red-300 text-xs text-center">⚠️ {error}</p>}
+        {error && <div className="p-3 rounded-xl bg-red-500/10 border border-red-400/20 text-red-300 text-sm text-center">⚠️ {error}</div>}
         <button onClick={handleJoin} disabled={code.length < 4 || loading}
           className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black disabled:opacity-40 transition-all">
           {loading ? '⏳…' : '🚀 Rejoindre l\'équipe'}
         </button>
         <button onClick={() => { setStep('identity'); setCode(''); setError(''); }}
-          className="w-full py-2 text-white/30 text-sm hover:text-white/60 transition-colors">← Changer de nom</button>
+          className="w-full py-2 text-white/30 text-sm hover:text-white/60 transition-colors">← Changer d'identité</button>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {RALLYE_TEAMS.map(t => (

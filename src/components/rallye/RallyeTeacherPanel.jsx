@@ -124,6 +124,17 @@ export default function RallyeTeacherPanel({ sessions, user }) {
                         {copied === `${session.id}-${team.id}` ? <CheckCircle className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
                       </button>
                     </div>
+                    {/* Liste des membres */}
+                    {(session[team.membersKey] || []).length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {(session[team.membersKey] || []).map((m, i) => (
+                          <div key={i} className="flex items-center gap-1.5 text-xs text-white/60">
+                            <span className="font-mono text-white/40 text-[10px]">{m.eleve_numero || '—'}</span>
+                            <span>{m.user_name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

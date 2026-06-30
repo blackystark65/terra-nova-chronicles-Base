@@ -63,7 +63,7 @@ function ReglesModal({ onClose }) {
           <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
             <h3 className="font-bold text-white mb-2">🎒 Rôle des élèves</h3>
             <ol className="list-decimal list-inside space-y-1.5 text-white/70">
-              <li>Rejoindre avec son prénom/nom + code équipe</li>
+              <li>S'identifier avec son numéro élève (TN-G… garçons, TN-F… filles) + code équipe</li>
               <li>Alterner défis intérieurs (app) et terrain (photos)</li>
               <li>Les défis terrain = sortir dehors photographier des preuves réelles</li>
               <li>Collecter les 7 clés → assembler le code secret !</li>
