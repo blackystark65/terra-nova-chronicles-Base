@@ -27,6 +27,7 @@ const NAV_ITEMS = [
   { name: '📋 Bilan', icon: BookOpen, path: 'BilanPedagogique' },
   { name: '👥 Élèves', icon: Users, path: 'GestionEleves' },
   { name: '📸 Photos Mahjong', icon: BookOpen, path: 'AdminEcoPairs', adminOnly: true },
+  { name: '🌿 Rallye', icon: Leaf, path: 'RallyeEcoSentinelles' },
 ];
 
 export default function BiolumiHeader({ currentPage }) {
