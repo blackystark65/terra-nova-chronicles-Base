@@ -544,10 +544,10 @@ export default function RallyeTeacherPanel({ sessions, user }) {
                   return (
                     <button key={defi.id}
                       onClick={() => setTab(session.id, defi.id)}
-                      className={`flex-shrink-0 px-3 py-2 text-xs font-bold border-b-2 transition-all flex flex-col items-center gap-0.5 min-w-[52px] max-w-[72px] text-center
+                      className={`flex-shrink-0 px-3 py-3 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 max-w-[110px]
                         ${currentTab === defi.id ? 'border-blue-400 text-blue-300 bg-blue-500/10' : 'border-transparent text-white/50 hover:text-white/80 hover:bg-white/5'}`}>
-                      <span>{defi.emoji}</span>
-                      <span className="leading-tight break-words w-full" style={{wordBreak:'break-word'}}>{defi.titre}</span>
+                      <span className="flex-shrink-0">{defi.emoji}</span>
+                      <span className="leading-tight" style={{display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden'}}>{defi.titre}</span>
                       {hasPending && <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />}
                       {allDone && <span className="text-green-400 text-[10px]">✓</span>}
                     </button>
