@@ -71,20 +71,26 @@ export function RallyeStudentJoin({ sessions, onJoined }) {
 
     const key = `members_${foundTeam}`;
     const allMembers = [...(foundSession.members_team1 || []), ...(foundSession.members_team2 || [])];
-    if (allMembers.some(m => m.eleve_numero === eleve.numero)) {
-      setError('Vous êtes déjà inscrit dans cette session.');
-      setLoading(false); return;
+    const alreadyMember = allMembers.some(m => m.eleve_numero === eleve.numero);
+
+    if (!alreadyMember) {
+      const newMember = {
+        eleve_id: eleve.id,
+        eleve_numero: eleve.numero,
+        user_name: `${eleve.prenom} ${eleve.nom}`,
+      };
+      await base44.entities.RallyeSession.update(foundSession.id, {
+        [key]: [...(foundSession[key] || []), newMember]
+      });
+      qc.invalidateQueries(['rallye-sessions']);
     }
-    const newMember = {
-      eleve_id: eleve.id,
-      eleve_numero: eleve.numero,
-      user_name: `${eleve.prenom} ${eleve.nom}`,
-    };
-    await base44.entities.RallyeSession.update(foundSession.id, {
-      [key]: [...(foundSession[key] || []), newMember]
-    });
-    qc.invalidateQueries(['rallye-sessions']);
-    onJoined?.({ session: foundSession, team: foundTeam, eleve });
+
+    // Trouver l'équipe de l'élève (il peut être dans team1 ou team2)
+    const teamOfEleve = foundSession.members_team1?.some(m => m.eleve_numero === eleve.numero) ? 'team1'
+      : foundSession.members_team2?.some(m => m.eleve_numero === eleve.numero) ? 'team2'
+      : foundTeam;
+
+    onJoined?.({ session: foundSession, team: teamOfEleve, eleve });
     setLoading(false);
   };
 
