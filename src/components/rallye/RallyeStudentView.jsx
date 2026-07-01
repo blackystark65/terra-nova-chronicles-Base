@@ -181,7 +181,75 @@ export function RallyeStudentJoin({ sessions, onJoined }) {
   );
 }
 
-// ─── MINI-JEUX INTÉRIEURS ─────────────────────────────────────────────────────
+// ─── LISTE COLLABORATIVE ─────────────────────────────────────────────────────
+
+function JeuListeCollaborative({ defi, onSubmit }) {
+  const [items, setItems] = useState(['']);
+  const [submitted, setSubmitted] = useState(false);
+
+  const addItem = () => setItems(prev => [...prev, '']);
+  const updateItem = (idx, val) => setItems(prev => prev.map((v, i) => i === idx ? val : v));
+  const removeItem = (idx) => setItems(prev => prev.filter((_, i) => i !== idx));
+  const validItems = items.filter(v => v.trim().length > 1);
+
+  const handleSubmit = () => {
+    setSubmitted(true);
+    onSubmit(validItems);
+  };
+
+  if (submitted) return (
+    <div className="text-center py-6 space-y-3">
+      <div className="text-5xl">📋</div>
+      <h3 className="text-xl font-black text-white">Liste envoyée !</h3>
+      <p className="text-white/60 text-sm">Votre liste de <strong className="text-white">{validItems.length} réponse{validItems.length > 1 ? 's' : ''}</strong> a été transmise à l'enseignant(e) pour validation et attribution des points.</p>
+    </div>
+  );
+
+  return (
+    <div className="space-y-3">
+      <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-400/20 text-blue-200 text-xs">
+        🏆 <strong>Défi Liste</strong> — L'équipe avec la liste la plus longue et la plus complète gagne le maximum de points ! Travaillez ensemble, chacun peut proposer des idées.
+      </div>
+      {defi.hint_eleves && (
+        <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/50 text-xs">
+          {defi.hint_eleves}
+        </div>
+      )}
+      <div className="space-y-2">
+        {items.map((item, idx) => (
+          <div key={idx} className="flex items-center gap-2">
+            <span className="text-white/30 text-xs w-5 text-right flex-shrink-0">{idx + 1}.</span>
+            <input
+              value={item}
+              onChange={e => updateItem(idx, e.target.value)}
+              placeholder={idx === 0 ? (defi.placeholder_eleves || 'Votre réponse…') : 'Ajouter une réponse…'}
+              className="flex-1 rounded-xl bg-black/30 border border-white/15 text-white px-3 py-2.5 text-sm placeholder:text-white/25 focus:outline-none focus:border-white/40"
+            />
+            {items.length > 1 && (
+              <button onClick={() => removeItem(idx)} className="flex-shrink-0 p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400/60 hover:text-red-400 transition-all">
+                <span className="text-xs">✕</span>
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+      <button onClick={addItem}
+        className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-dashed border-white/20 text-white/50 text-sm transition-all">
+        + Ajouter une réponse
+      </button>
+      <div className="flex items-center justify-between text-xs text-white/40 px-1">
+        <span>{validItems.length} réponse{validItems.length !== 1 ? 's' : ''} rédigée{validItems.length !== 1 ? 's' : ''}</span>
+        <span>Plus c'est long, mieux c'est !</span>
+      </div>
+      <button onClick={handleSubmit} disabled={validItems.length === 0}
+        className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black disabled:opacity-40 transition-all">
+        📤 Envoyer notre liste à l'enseignant(e)
+      </button>
+    </div>
+  );
+}
+
+// ─── MINI-JEUX INTÉRIEURS (anciens types conservés pour compatibilité) ─────────
 
 function JeuSelectionMultiple({ defi, onValidate }) {
   const [selected, setSelected] = useState([]);
@@ -451,6 +519,17 @@ export function RallyeGameView({ session, teamId, eleve }) {
     setPhase('victoire');
   };
 
+  // Soumission d'une liste collaborative (en attente de validation enseignant)
+  const saveListePending = async (items) => {
+    const updated = {
+      ...defisEtat,
+      [activeDefi.id]: { validated: false, score: 0, liste_items: items, timestamp: new Date().toISOString() }
+    };
+    await base44.entities.RallyeSession.update(session.id, { [team.defisKey]: updated });
+    qc.invalidateQueries(['rallye-sessions']);
+    setPhase('victoire');
+  };
+
   const saveTerrainPending = async (preuves) => {
     const updated = {
       ...defisEtat,
@@ -505,6 +584,7 @@ export function RallyeGameView({ session, teamId, eleve }) {
 
           {phase === 'jeu' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              {activeDefi.type === 'liste_collaborative' && <JeuListeCollaborative defi={activeDefi} onSubmit={saveListePending} />}
               {activeDefi.type === 'selection_multiple' && <JeuSelectionMultiple defi={activeDefi} onValidate={saveDefiResult} />}
               {activeDefi.type === 'association' && <JeuAssociation defi={activeDefi} onValidate={saveDefiResult} />}
               {activeDefi.type === 'quiz_sequentiel' && <JeuQuizSequentiel defi={activeDefi} onValidate={saveDefiResult} />}

@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { Copy, CheckCircle, X, Trash2, Flag, UserPlus, Search, ClipboardList, ChevronDown, ChevronRight, Camera, Lock } from 'lucide-react';
+import { Copy, CheckCircle, X, Trash2, Flag, UserPlus, Search, ChevronDown } from 'lucide-react';
 import { RALLYE_TEAMS, RALLYE_DEFIS, generateCode, calcRallyeScore } from '@/data/rallyeData';
 
 // ─── Onglet "Vue d'ensemble d'un défi" pour l'enseignant ─────────────────────
-function DefiTeacherDetail({ defi, session, onUpdate }) {
+function DefiTeacherDetail({ defi, session }) {
   const qc = useQueryClient();
+  const [showReferentiel, setShowReferentiel] = useState(false);
+  // Pour chaque équipe : quels items du référentiel sont cochés
+  const [validatedItems, setValidatedItems] = useState({});
 
   const handleValidate = async (teamId, score) => {
     const team = RALLYE_TEAMS.find(t => t.id === teamId);
     const defis = session[team.defisKey] || {};
-    const updated = { ...defis, [defi.id]: { validated: true, score, timestamp: new Date().toISOString() } };
+    const updated = { ...defis, [defi.id]: { ...defis[defi.id], validated: true, score, timestamp: new Date().toISOString() } };
     await base44.entities.RallyeSession.update(session.id, { [team.defisKey]: updated });
     qc.invalidateQueries(['rallye-sessions']);
   };
@@ -26,35 +29,64 @@ function DefiTeacherDetail({ defi, session, onUpdate }) {
     qc.invalidateQueries(['rallye-sessions']);
   };
 
+  const toggleItem = (teamId, itemId) => {
+    setValidatedItems(prev => {
+      const key = `${teamId}-${itemId}`;
+      return { ...prev, [key]: !prev[key] };
+    });
+  };
+
+  const countValidated = (teamId) =>
+    (defi.referentiel_enseignant || []).filter(item => validatedItems[`${teamId}-${item.id}`]).length;
+
+  // Calculer les scores comparatifs entre les deux équipes
+  const computeComparativeScores = () => {
+    const c1 = countValidated('team1');
+    const c2 = countValidated('team2');
+    const pts_gagnant = defi.points_gagnant || defi.points;
+    const pts_perdant = defi.points_perdant || Math.floor(defi.points * 0.5);
+    if (c1 > c2) return { team1: pts_gagnant, team2: pts_perdant, winner: 'team1' };
+    if (c2 > c1) return { team1: pts_perdant, team2: pts_gagnant, winner: 'team2' };
+    return { team1: Math.floor((pts_gagnant + pts_perdant) / 2), team2: Math.floor((pts_gagnant + pts_perdant) / 2), winner: 'egalite' };
+  };
+
+  const canInteract = session.status === 'en_cours';
+  const isListeCollab = defi.type === 'liste_collaborative';
+
   return (
     <div className="space-y-4">
       {/* En-tête du défi */}
       <div className={`p-4 rounded-2xl bg-gradient-to-br ${defi.couleur} border border-white/10`}>
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-3 mb-3">
           <span className="text-3xl">{defi.emoji}</span>
-          <div>
+          <div className="flex-1">
             <h3 className="text-white font-black text-base">{defi.titre}</h3>
             <p className="text-white/60 text-xs">{defi.sousTitre}</p>
           </div>
-          <span className={`ml-auto text-xs px-2.5 py-1 rounded-full border font-bold ${defi.mode === 'terrain' ? 'bg-amber-500/20 text-amber-300 border-amber-400/30' : 'bg-blue-500/20 text-blue-300 border-blue-400/30'}`}>
+          <span className={`text-xs px-2.5 py-1 rounded-full border font-bold ${defi.mode === 'terrain' ? 'bg-amber-500/20 text-amber-300 border-amber-400/30' : 'bg-blue-500/20 text-blue-300 border-blue-400/30'}`}>
             {defi.mode === 'terrain' ? '🌿 Terrain' : '🖥️ Intérieur'}
           </span>
         </div>
+
         <div className="p-3 rounded-xl bg-black/20 border border-white/10 mb-2">
-          <p className="text-white/50 text-[10px] font-bold uppercase mb-1">📋 Mission pour les élèves</p>
-          <p className="text-white/90 text-sm">{defi.consigne}</p>
+          <p className="text-white/50 text-[10px] font-bold uppercase mb-1">📋 Mission des élèves</p>
+          <p className="text-white/90 text-sm">{defi.consigne_eleves || defi.consigne}</p>
         </div>
-        <div className="p-3 rounded-xl bg-black/15 border border-white/10">
-          <p className="text-white/50 text-[10px] font-bold uppercase mb-1">💡 Geste à retenir</p>
-          <p className="text-white/80 text-sm">{defi.geste}</p>
-        </div>
+
+        {isListeCollab && (
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-400/20 mb-2">
+            <p className="text-amber-200/70 text-[10px] font-bold uppercase mb-1">🏆 Barème comparatif</p>
+            <p className="text-amber-100 text-xs">{defi.criteres_validation}</p>
+          </div>
+        )}
+
         {defi.mode === 'terrain' && defi.objectifs && (
-          <div className="mt-2 p-3 rounded-xl bg-black/15 border border-white/10">
-            <p className="text-white/50 text-[10px] font-bold uppercase mb-2">📷 Photos à réaliser</p>
+          <div className="p-3 rounded-xl bg-black/15 border border-white/10 mb-2">
+            <p className="text-white/50 text-[10px] font-bold uppercase mb-2">📷 Photos attendues</p>
             <div className="space-y-1.5">
               {defi.objectifs.map(obj => (
                 <div key={obj.id} className="flex items-start gap-2">
-                  <span className="text-base leading-tight mt-0.5">{obj.label.split(' ')[0]}</span>
+                  <span className="text-sm leading-tight mt-0.5">{obj.label.split(' ')[0]}</span>
                   <div>
                     <p className="text-white/80 text-xs font-semibold">{obj.label.replace(obj.label.split(' ')[0] + ' ', '')}</p>
                     <p className="text-white/40 text-xs">Ex : {obj.exemples}</p>
@@ -64,24 +96,59 @@ function DefiTeacherDetail({ defi, session, onUpdate }) {
             </div>
           </div>
         )}
-        <div className="mt-2 flex items-center justify-between">
-          <span className="text-amber-300 font-black text-sm">🏅 {defi.points} points</span>
+
+        <div className="p-3 rounded-xl bg-black/15 border border-white/10">
+          <p className="text-white/50 text-[10px] font-bold uppercase mb-1">💡 Geste à retenir</p>
+          <p className="text-white/80 text-sm">{defi.geste}</p>
+        </div>
+
+        <div className="mt-3 flex items-center justify-between">
+          <span className="text-amber-300 font-black text-sm">
+            🏅 {isListeCollab ? `${defi.points_gagnant || defi.points} / ${defi.points_perdant || Math.floor(defi.points * 0.5)} pts` : `${defi.points} pts`}
+          </span>
           <span className="text-white/40 text-xs font-mono">Mot-clé : {defi.motCle}</span>
         </div>
       </div>
 
-      {/* État par équipe */}
-      <div className="grid grid-cols-1 gap-3">
+      {/* RÉFÉRENTIEL ENSEIGNANT (liste collaborative uniquement) */}
+      {isListeCollab && defi.referentiel_enseignant && (
+        <div className="rounded-xl border border-violet-400/20 bg-violet-500/5 overflow-hidden">
+          <button onClick={() => setShowReferentiel(!showReferentiel)}
+            className="w-full p-3 flex items-center justify-between text-left">
+            <div className="flex items-center gap-2">
+              <span className="text-violet-300 text-sm font-black">📚 Référentiel enseignant</span>
+              <span className="text-violet-400/60 text-xs">({defi.referentiel_enseignant.length} réponses acceptables)</span>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-violet-400/60 transition-transform ${showReferentiel ? 'rotate-180' : ''}`} />
+          </button>
+          {showReferentiel && (
+            <div className="px-3 pb-3 space-y-1.5 max-h-64 overflow-y-auto">
+              {defi.referentiel_enseignant.map(item => (
+                <div key={item.id} className="p-2.5 rounded-xl bg-black/20 border border-violet-400/10">
+                  <p className="text-violet-200 text-xs font-bold">{item.label}</p>
+                  <p className="text-white/40 text-[11px] mt-0.5 leading-relaxed">{item.explication}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ÉTAT PAR ÉQUIPE */}
+      <div className="space-y-4">
         {RALLYE_TEAMS.map(team => {
           const defis = session[team.defisKey] || {};
           const etat = defis[defi.id];
           const isDone = etat?.validated;
-          const isPending = etat?.preuves?.length > 0 && !isDone;
-          const canInteract = session.status === 'en_cours';
+          const hasList = etat?.liste_items?.length > 0;
+          const hasPhotos = etat?.preuves?.length > 0;
+          const isPending = (hasList || hasPhotos) && !isDone;
+          const nItems = countValidated(team.id);
 
           return (
-            <div key={team.id} className={`p-4 rounded-xl border ${isDone ? 'bg-green-500/10 border-green-400/20' : isPending ? 'bg-amber-500/10 border-amber-400/20' : 'bg-white/5 border-white/10'}`}>
-              <div className="flex items-center justify-between gap-3 mb-3">
+            <div key={team.id} className={`rounded-xl border overflow-hidden ${isDone ? 'border-green-400/20' : isPending ? 'border-amber-400/20' : 'border-white/10'}`}>
+              {/* Header équipe */}
+              <div className={`p-3 flex items-center justify-between ${isDone ? 'bg-green-500/10' : isPending ? 'bg-amber-500/10' : 'bg-white/5'}`}>
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{team.emoji}</span>
                   <span className="text-white font-bold text-sm">{team.name}</span>
@@ -89,68 +156,116 @@ function DefiTeacherDetail({ defi, session, onUpdate }) {
                 </div>
                 <div className="flex items-center gap-2">
                   {isDone && <span className="text-green-400 text-xs font-black px-2 py-0.5 rounded-full bg-green-500/20 border border-green-400/30">✅ {etat.score} pts</span>}
-                  {isPending && <span className="text-amber-300 text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/30">⏳ En attente</span>}
-                  {!isDone && !isPending && <span className="text-white/30 text-xs">Non commencé</span>}
+                  {isPending && !isDone && <span className="text-amber-300 text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/30">⏳ Liste soumise</span>}
+                  {!isDone && !isPending && <span className="text-white/30 text-xs">En attente</span>}
                 </div>
               </div>
 
-              {/* Photos terrain à valider */}
-              {isPending && etat.preuves?.length > 0 && (
-                <div className="mb-3">
-                  <p className="text-amber-200 text-xs font-bold mb-2">📷 Photos soumises par l'équipe :</p>
-                  <div className="flex gap-2 flex-wrap mb-3">
-                    {etat.preuves.map((url, i) => (
-                      <a key={i} href={url} target="_blank" rel="noopener noreferrer"
-                        className="relative group">
-                        <img src={url} alt={`Preuve ${i + 1}`}
-                          className="w-20 h-20 object-cover rounded-xl border border-amber-400/30 hover:border-amber-400/70 transition-all" />
-                        <div className="absolute inset-0 rounded-xl bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
-                          <span className="text-white/0 group-hover:text-white/90 text-xs font-bold transition-all">🔍</span>
-                        </div>
-                        <span className="absolute bottom-1 right-1 text-[10px] text-white/70 bg-black/50 rounded px-1">Photo {i + 1}</span>
-                      </a>
-                    ))}
+              <div className="p-3 space-y-3">
+                {/* Liste soumise par l'équipe */}
+                {isListeCollab && hasList && (
+                  <div>
+                    <p className="text-white/60 text-xs font-bold mb-2">
+                      📋 Liste soumise ({etat.liste_items.length} réponse{etat.liste_items.length > 1 ? 's' : ''}) — Cochez les réponses valides :
+                    </p>
+                    <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                      {etat.liste_items.map((item, idx) => {
+                        const key = `${team.id}-item${idx}`;
+                        const isValid = validatedItems[key];
+                        return (
+                          <button key={idx} onClick={() => setValidatedItems(prev => ({ ...prev, [key]: !prev[key] }))}
+                            className={`w-full flex items-center gap-3 p-2.5 rounded-xl border text-left transition-all
+                              ${isValid ? 'bg-green-500/20 border-green-400/40' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                            <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all
+                              ${isValid ? 'bg-green-500 border-green-400' : 'border-white/30'}`}>
+                              {isValid && <CheckCircle className="w-3 h-3 text-white" />}
+                            </div>
+                            <span className={`text-sm ${isValid ? 'text-green-200 font-semibold' : 'text-white/70'}`}>{item}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-xs">
+                      <span className="text-white/40">{nItems} / {etat.liste_items.length} réponse{nItems > 1 ? 's' : ''} validée{nItems > 1 ? 's' : ''}</span>
+                    </div>
                   </div>
-                  {canInteract && (
+                )}
+
+                {/* Photos terrain */}
+                {hasPhotos && (
+                  <div>
+                    <p className="text-amber-200 text-xs font-bold mb-2">📷 Photos soumises :</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {etat.preuves.map((url, i) => (
+                        <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="relative group">
+                          <img src={url} alt="" className="w-20 h-20 object-cover rounded-xl border border-amber-400/30 hover:border-amber-400/70 transition-all" />
+                          <span className="absolute bottom-1 right-1 text-[10px] text-white/70 bg-black/50 rounded px-1">Photo {i + 1}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Boutons de validation */}
+                {canInteract && !isDone && (isListeCollab && hasList) && (
+                  <div className="space-y-2">
+                    {/* Score comparatif calculé automatiquement */}
+                    {(() => {
+                      const scores = computeComparativeScores();
+                      const myScore = scores[team.id];
+                      return (
+                        <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white/50 flex items-center justify-between">
+                          <span>Score calculé : <strong className="text-white/80">{nItems} réponses valides</strong></span>
+                          <span className={`font-black ${scores.winner === team.id ? 'text-amber-300' : scores.winner === 'egalite' ? 'text-white/60' : 'text-white/40'}`}>
+                            → {myScore} pts {scores.winner === team.id ? '🏆' : scores.winner === 'egalite' ? '=' : ''}
+                          </span>
+                        </div>
+                      );
+                    })()}
                     <div className="flex gap-2">
-                      <button onClick={() => handleValidate(team.id, defi.points)}
+                      <button onClick={() => { const s = computeComparativeScores(); handleValidate(team.id, s[team.id]); }}
                         className="flex-1 py-2 rounded-xl bg-green-500/30 hover:bg-green-500/50 text-green-300 text-xs font-black border border-green-400/30 transition-all">
-                        ✅ Valider ({defi.points} pts)
+                        ✅ Valider avec score calculé
                       </button>
-                      <button onClick={() => handleValidate(team.id, Math.floor(defi.points * 0.5))}
-                        className="flex-1 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-black border border-amber-400/20 transition-all">
-                        ½ Partiel ({Math.floor(defi.points * 0.5)} pts)
-                      </button>
-                      <button onClick={() => handleInvalidate(team.id)}
-                        className="px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold border border-red-400/20 transition-all">
-                        ✗
+                      <button onClick={() => handleValidate(team.id, defi.points)}
+                        className="flex-shrink-0 py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white/60 text-xs font-bold border border-white/10 transition-all">
+                        Max
                       </button>
                     </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
 
-              {/* Validation manuelle défi intérieur ou terrain sans photos */}
-              {!isDone && !isPending && canInteract && (
-                <div className="flex gap-2">
-                  <button onClick={() => handleValidate(team.id, defi.points)}
-                    className="flex-1 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 text-xs font-black border border-emerald-400/20 transition-all">
-                    ✅ Valider ({defi.points} pts)
-                  </button>
-                  <button onClick={() => handleValidate(team.id, Math.floor(defi.points * 0.5))}
-                    className="flex-1 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/60 text-xs font-bold border border-white/10 transition-all">
-                    ½ Partiel
-                  </button>
-                </div>
-              )}
+                {/* Validation terrain ou manuelle */}
+                {canInteract && !isDone && !isListeCollab && (hasPhotos || !hasList) && (
+                  <div className="flex gap-2">
+                    <button onClick={() => handleValidate(team.id, defi.points)}
+                      className="flex-1 py-2 rounded-xl bg-green-500/30 hover:bg-green-500/50 text-green-300 text-xs font-black border border-green-400/30 transition-all">
+                      ✅ Valider ({defi.points} pts)
+                    </button>
+                    <button onClick={() => handleValidate(team.id, Math.floor(defi.points * 0.5))}
+                      className="flex-1 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-400/20 transition-all">
+                      ½ Partiel
+                    </button>
+                    {hasPhotos && (
+                      <button onClick={() => handleInvalidate(team.id)}
+                        className="px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs border border-red-400/20 transition-all">✗</button>
+                    )}
+                  </div>
+                )}
 
-              {/* Annuler une validation */}
-              {isDone && canInteract && (
-                <button onClick={() => handleInvalidate(team.id)}
-                  className="w-full py-1.5 rounded-xl bg-white/5 hover:bg-red-500/10 text-white/30 hover:text-red-400 text-xs border border-white/10 hover:border-red-400/20 transition-all">
-                  Annuler la validation
-                </button>
-              )}
+                {/* Annuler */}
+                {isDone && canInteract && (
+                  <button onClick={() => handleInvalidate(team.id)}
+                    className="w-full py-1.5 rounded-xl bg-white/5 hover:bg-red-500/10 text-white/30 hover:text-red-400 text-xs border border-white/10 hover:border-red-400/20 transition-all">
+                    Annuler la validation
+                  </button>
+                )}
+
+                {/* Pas encore soumis */}
+                {!isPending && !isDone && canInteract && (
+                  <p className="text-white/30 text-xs text-center italic">L'équipe n'a pas encore soumis ce défi.</p>
+                )}
+              </div>
             </div>
           );
         })}
