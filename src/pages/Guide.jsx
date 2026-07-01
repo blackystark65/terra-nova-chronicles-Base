@@ -740,12 +740,13 @@ const SLIDES = [
         <div className="grid md:grid-cols-2 gap-4 mb-5">
           <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-400/20">
             <h3 className="font-bold text-blue-300 mb-3">🖥️ 4 défis Intérieurs (100 pts chacun)</h3>
+            <p className="text-blue-200/50 text-xs mb-2">🏆 Défi Liste : l'équipe avec la liste la plus longue et juste gagne 100 pts, l'autre 50 pts.</p>
             <div className="space-y-2">
               {[
-                { e: '⚡', t: 'Énergie', d: 'Identifie les appareils en veille qui gaspillent' },
-                { e: '💧', t: 'Eau', d: 'Associe chaque action à sa consommation réelle' },
-                { e: '🚲', t: 'Mobilité douce', d: 'Choisis le transport le moins polluant' },
-                { e: '♻️', t: 'Économie circulaire', d: 'Applique les 3R à chaque objet' },
+                { e: '⚡', t: 'Énergie', d: 'Liste les appareils qui gaspillent en veille' },
+                { e: '💧', t: 'Eau', d: 'Liste les gestes d\'économie d\'eau du quotidien' },
+                { e: '🚲', t: 'Mobilité douce', d: 'Liste les alternatives à la voiture par trajet' },
+                { e: '♻️', t: 'Économie circulaire', d: 'Liste les objets jetés + leur alternative' },
               ].map((d, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
                   <span>{d.e}</span>
@@ -785,8 +786,8 @@ const SLIDES = [
           <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-400/20">
             <h3 className="font-bold text-emerald-300 text-sm mb-2">🎒 Les élèves</h3>
             <ul className="space-y-1 text-xs text-emerald-200/70">
-              <li>• Rejoignent avec prénom + code équipe</li>
-              <li>• Alternent jeux intérieurs et terrain</li>
+              <li>• Rejoignent avec numéro TN + code équipe</li>
+              <li>• Rédigent des listes collaboratives en intérieur</li>
               <li>• Photographient des preuves réelles dehors</li>
               <li>• Collectent les 7 clés → code secret !</li>
             </ul>

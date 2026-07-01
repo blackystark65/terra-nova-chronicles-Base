@@ -451,12 +451,13 @@ const SLIDES = [
         <div className="grid md:grid-cols-2 gap-5 mb-5">
           <div className="p-5 rounded-2xl bg-blue-500/10 border border-blue-400/20">
             <h3 className="font-bold text-blue-300 mb-3">🖥️ 4 défis Intérieurs — 100 pts chacun</h3>
+            <p className="text-blue-200/50 text-xs mb-3">🏆 Défi Liste : l'équipe avec la liste la plus longue et juste gagne 100 pts, l'autre 50 pts.</p>
             <div className="space-y-3">
               {[
-                { e: '⚡', t: 'Énergie — Chasse aux Veilles', d: 'Sélectionner les appareils qui consomment inutilement. Mini-jeu de sélection multiple.', m: 'SOLEIL' },
-                { e: '💧', t: 'Eau — Brigade des Gouttes', d: 'Associer chaque geste quotidien à sa vraie consommation en litres.', m: 'RIVIÈRE' },
-                { e: '🚲', t: 'Mobilité Douce — Le Bon Trajet', d: 'Quiz séquentiel : choisir le transport le moins polluant selon la distance.', m: 'PÉDALE' },
-                { e: '♻️', t: 'Économie Circulaire — La Seconde Vie', d: 'Attribuer la bonne action (réparer, réutiliser, recycler) à chaque objet.', m: 'RÉPARE' },
+                { e: '⚡', t: 'Énergie — La Chasse aux Veilles', d: 'L\'équipe liste le maximum d\'appareils qui consomment inutilement en veille ou branchés à vide.', m: 'SOLEIL' },
+                { e: '💧', t: 'Eau — La Brigade des Gouttes', d: 'L\'équipe liste le maximum de gestes du quotidien qui permettent d\'économiser l\'eau.', m: 'RIVIÈRE' },
+                { e: '🚲', t: 'Mobilité Douce — Les Trajets Éco-Responsables', d: 'L\'équipe liste le maximum de situations où l\'on peut remplacer la voiture par un transport alternatif.', m: 'PÉDALE' },
+                { e: '♻️', t: 'Économie Circulaire — La Seconde Vie des Objets', d: 'L\'équipe liste le maximum d\'objets jetés trop vite avec une alternative (réparer, donner, réutiliser).', m: 'RÉPARE' },
               ].map((d, i) => (
                 <div key={i} className="flex gap-3 items-start">
                   <span className="text-xl flex-shrink-0">{d.e}</span>
@@ -505,10 +506,10 @@ const SLIDES = [
           <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-400/20 text-center">
             <p className="text-emerald-300 font-bold text-xs mb-1">🎒 Élèves</p>
             <ul className="text-left text-xs text-emerald-200/70 space-y-1">
-              <li>• Prénom + code équipe</li>
-              <li>• Jeux dans l'app</li>
-              <li>• Photos dehors</li>
-              <li>• Collectent les clés</li>
+              <li>• Numéro TN + code équipe</li>
+              <li>• Listes collaboratives intérieures</li>
+              <li>• Photos terrain dehors</li>
+              <li>• Collectent les 7 clés</li>
             </ul>
           </div>
           <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-center">
