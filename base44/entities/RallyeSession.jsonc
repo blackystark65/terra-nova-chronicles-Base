@@ -73,10 +73,11 @@
     "status": {
       "type": "string",
       "enum": [
+        "preparation",
         "en_cours",
         "termine"
       ],
-      "default": "en_cours"
+      "default": "preparation"
     },
     "winner_team": {
       "type": "string",

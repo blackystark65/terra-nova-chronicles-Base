@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { Copy, CheckCircle, X, Trash2, Flag, UserPlus, Search } from 'lucide-react';
+import { Copy, CheckCircle, X, Trash2, Flag, UserPlus, Search, ClipboardList } from 'lucide-react';
 import { RALLYE_TEAMS, RALLYE_DEFIS, generateCode, calcRallyeScore } from '@/data/rallyeData';
 
 export default function RallyeTeacherPanel({ sessions, user }) {
@@ -35,10 +35,14 @@ export default function RallyeTeacherPanel({ sessions, user }) {
       code_team1: generateCode(),
       code_team2: generateCode(),
       date_session: dateSession || new Date().toISOString().split('T')[0],
-      status: 'en_cours',
+      status: 'preparation',
       defis_team1: {},
       defis_team2: {},
     });
+  };
+
+  const handleLancer = (session) => {
+    updateMutation.mutate({ id: session.id, data: { status: 'en_cours' } });
   };
 
   const handleCloture = (session) => {
@@ -95,6 +99,8 @@ export default function RallyeTeacherPanel({ sessions, user }) {
     qc.invalidateQueries(['rallye-sessions']);
   };
 
+  const [saisieSession, setSaisieSession] = useState(null); // sessionId-teamId
+
   const mySessions = sessions.filter(s => s.enseignant_email === user.email);
 
   return (
@@ -126,13 +132,22 @@ export default function RallyeTeacherPanel({ sessions, user }) {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-black text-white">{session.nom_classe}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${session.status === 'en_cours' ? 'bg-green-500/20 text-green-300' : 'bg-amber-500/20 text-amber-300'}`}>
-                    {session.status === 'en_cours' ? '🟢 En cours' : '🏁 Terminé'}
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                    session.status === 'preparation' ? 'bg-blue-500/20 text-blue-300' :
+                    session.status === 'en_cours' ? 'bg-green-500/20 text-green-300' :
+                    'bg-amber-500/20 text-amber-300'}`}>
+                    {session.status === 'preparation' ? '🔧 Préparation' : session.status === 'en_cours' ? '🟢 En cours' : '🏁 Terminé'}
                   </span>
                 </div>
                 <p className="text-white/50 text-xs">{session.date_session}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
+                {session.status === 'preparation' && (
+                  <button onClick={() => handleLancer(session)}
+                    className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-emerald-500/30 hover:bg-emerald-500/50 text-emerald-200 border border-emerald-400/40 font-bold transition-all">
+                    🚀 Lancer le rallye
+                  </button>
+                )}
                 {session.status === 'en_cours' && (
                   <button onClick={() => handleCloture(session)}
                     className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-400/30 font-bold transition-all">
@@ -147,7 +162,7 @@ export default function RallyeTeacherPanel({ sessions, user }) {
             </div>
 
             {/* Codes équipes */}
-            {session.status === 'en_cours' && (
+            {(session.status === 'preparation' || session.status === 'en_cours') && (
               <div className="p-4 grid grid-cols-2 gap-3 border-b border-white/10">
                 {RALLYE_TEAMS.map(team => (
                   <div key={team.id} className={`p-3 rounded-xl border ${team.border} ${team.bg}`}>
@@ -182,7 +197,7 @@ export default function RallyeTeacherPanel({ sessions, user }) {
             )}
 
             {/* Formation d'équipes par l'enseignant */}
-            {session.status === 'en_cours' && (
+            {(session.status === 'preparation' || session.status === 'en_cours') && (
               <div className="p-4 border-b border-white/10">
                 <button
                   onClick={() => { setManagingSession(managingSession === session.id ? null : session.id); setSearchQuery(''); setSearchResults([]); setSearchError(''); }}
@@ -296,6 +311,16 @@ export default function RallyeTeacherPanel({ sessions, user }) {
               </div>
             )}
 
+            {/* Bannière préparation */}
+            {session.status === 'preparation' && (
+              <div className="mx-4 mb-2 p-3 rounded-xl bg-blue-500/10 border border-blue-400/20 text-blue-200 text-xs flex items-start gap-2">
+                <span className="text-lg">ℹ️</span>
+                <div>
+                  <strong>Phase de préparation</strong> — Constituez vos équipes ci-dessus, puis cliquez sur <strong>🚀 Lancer le rallye</strong> pour démarrer la session. Une fois lancée, les élèves pourront rejoindre avec leur code et vous pourrez saisir leurs résultats.
+                </div>
+              </div>
+            )}
+
             {/* Progression des défis */}
             <div className="p-4 grid grid-cols-2 gap-3">
               {RALLYE_TEAMS.map(team => {
@@ -336,6 +361,45 @@ export default function RallyeTeacherPanel({ sessions, user }) {
                         </button>
                       </div>
                     ))}
+
+                    {/* Saisie manuelle des défis */}
+                    {session.status === 'en_cours' && (
+                      <>
+                        <button onClick={() => setSaisieSession(saisieSession === `${session.id}-${team.id}` ? null : `${session.id}-${team.id}`)}
+                          className="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/60 hover:text-white text-xs font-bold border border-white/10 transition-all">
+                          <ClipboardList className="w-3.5 h-3.5" />
+                          {saisieSession === `${session.id}-${team.id}` ? 'Fermer saisie manuelle' : 'Saisie manuelle des défis'}
+                        </button>
+                        <AnimatePresence>
+                          {saisieSession === `${session.id}-${team.id}` && (
+                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                              <div className="mt-2 space-y-1.5">
+                                {RALLYE_DEFIS.map(defi => {
+                                  const etat = defis[defi.id];
+                                  const isDone = etat?.validated;
+                                  return (
+                                    <div key={defi.id} className={`flex items-center justify-between gap-2 p-2 rounded-lg border ${isDone ? 'bg-green-500/10 border-green-400/20' : 'bg-white/5 border-white/10'}`}>
+                                      <span className="text-xs text-white/70 flex-1">{defi.emoji} {defi.titre}</span>
+                                      <span className="text-xs text-white/40">{defi.points} pts</span>
+                                      {isDone
+                                        ? <span className="text-green-400 text-xs font-bold">✅ {etat.score} pts</span>
+                                        : <button onClick={async () => {
+                                            const updated = { ...defis, [defi.id]: { validated: true, score: defi.points, timestamp: new Date().toISOString() } };
+                                            await base44.entities.RallyeSession.update(session.id, { [team.defisKey]: updated });
+                                            qc.invalidateQueries(['rallye-sessions']);
+                                          }} className="px-2 py-0.5 rounded-lg bg-emerald-500/30 hover:bg-emerald-500/50 text-emerald-300 text-xs font-bold border border-emerald-400/30 transition-all">
+                                            Valider
+                                          </button>
+                                      }
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </>
+                    )}
                   </div>
                 );
               })}
