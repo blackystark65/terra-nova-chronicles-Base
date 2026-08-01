@@ -3,8 +3,22 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+
+    // Require authenticated user
+    await base44.auth.me();
+
     const body = await req.json();
-    const { rdv } = body;
+    const { rdvId } = body;
+
+    if (!rdvId || typeof rdvId !== 'string') {
+      return Response.json({ error: 'Missing rdvId' }, { status: 400 });
+    }
+
+    // Load RDV from DB — never trust client-supplied content
+    const rdv = await base44.asServiceRole.entities.RendezVous.get(rdvId);
+    if (!rdv) {
+      return Response.json({ error: 'RDV not found' }, { status: 404 });
+    }
 
     const typeLabels = {
       decouverte_biodiversite: 'Découverte Biodiversité',

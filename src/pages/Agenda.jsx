@@ -41,7 +41,7 @@ export default function AgendaPage() {
         statut: 'en_attente',
         code_bilan,
       });
-      await base44.functions.invoke('sendRdvNotification', { rdv });
+      await base44.functions.invoke('sendRdvNotification', { rdvId: rdv.id });
       setSuccess(true);
     } catch (err) {
       setError("Une erreur est survenue. Veuillez réessayer.");
