@@ -5,7 +5,7 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
 
     // Require authenticated user
-    await base44.auth.me();
+    const user = await base44.auth.me();
 
     const body = await req.json();
     const { rdvId } = body;
@@ -18,6 +18,11 @@ Deno.serve(async (req) => {
     const rdv = await base44.asServiceRole.entities.RendezVous.get(rdvId);
     if (!rdv) {
       return Response.json({ error: 'RDV not found' }, { status: 404 });
+    }
+
+    // Verify ownership: only the creator or an admin may trigger notifications
+    if (rdv.created_by_id !== user.id && user.role !== 'admin') {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const typeLabels = {
