@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -970,9 +970,31 @@ const SLIDES = [
 
 export default function GuidePage() {
   const [current, setCurrent] = useState(0);
+  const touchStartX = useRef(null);
 
   const prev = () => setCurrent(c => Math.max(0, c - 1));
   const next = () => setCurrent(c => Math.min(SLIDES.length - 1, c + 1));
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) next();
+      else prev();
+    }
+    touchStartX.current = null;
+  };
+
+  const handleTapZone = (e, side) => {
+    // Only trigger on touch devices (pointer type touch)
+    if (e.nativeEvent.pointerType === 'mouse') return;
+    if (side === 'right') next();
+    else prev();
+  };
 
   const slide = SLIDES[current];
 
@@ -982,7 +1004,11 @@ export default function GuidePage() {
 
       <main className="pt-16 h-screen flex flex-col">
         {/* Slide */}
-        <div className="flex-1 overflow-y-auto relative">
+        <div
+          className="flex-1 overflow-y-auto relative"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={slide.id}
@@ -995,6 +1021,19 @@ export default function GuidePage() {
               {slide.content}
             </motion.div>
           </AnimatePresence>
+
+          {/* Zones de tap tactile gauche/droite (invisibles, mobile/tablette uniquement) */}
+          <div className="md:hidden pointer-events-none absolute inset-0 flex" style={{zIndex: 10}}>
+            <div
+              className="w-1/4 h-full pointer-events-auto"
+              onPointerUp={(e) => handleTapZone(e, 'left')}
+            />
+            <div className="flex-1 h-full" />
+            <div
+              className="w-1/4 h-full pointer-events-auto"
+              onPointerUp={(e) => handleTapZone(e, 'right')}
+            />
+          </div>
         </div>
 
         {/* Barre de navigation */}
