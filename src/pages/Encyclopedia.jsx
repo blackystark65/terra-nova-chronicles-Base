@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { 
   BookOpen, Search, MessageCircle, Send, X, TreeDeciduous, 
-  Droplets, Leaf, Recycle, Bug, Sprout, Zap, Globe, Dna, Coins 
+  Droplets, Leaf, Recycle, Bug, Sprout, Zap, Globe, Dna, Coins, Mic, MicOff
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -354,7 +354,36 @@ export default function EncyclopediaPage() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  const startListening = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("La reconnaissance vocale n'est pas disponible sur ce navigateur. Essayez Chrome sur Android ou Safari sur iOS.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'fr-FR';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognitionRef.current = recognition;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      setInputMessage(transcript);
+    };
+    recognition.start();
+  };
+
+  const stopListening = () => {
+    recognitionRef.current?.stop();
+    setIsListening(false);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -691,9 +720,24 @@ export default function EncyclopediaPage() {
               {/* Input */}
               <div className="p-4 sm:p-6 border-t-4 border-emerald-200 bg-white">
                 <div className="flex gap-2 sm:gap-3">
+                  {/* Bouton micro */}
+                  <button
+                    type="button"
+                    onClick={isListening ? stopListening : startListening}
+                    disabled={isLoading}
+                    title={isListening ? "Arrêter l'écoute" : "Poser la question en vocal"}
+                    className={`flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center transition-all touch-manipulation border-2 ${
+                      isListening
+                        ? 'bg-red-500 border-red-400 text-white animate-pulse'
+                        : 'bg-emerald-50 border-emerald-300 text-emerald-600 hover:bg-emerald-100'
+                    }`}
+                  >
+                    {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  </button>
+
                   <Input
                     type="text"
-                    placeholder="Pose ta question à Bryan..."
+                    placeholder={isListening ? "🎤 Parle maintenant…" : "Pose ta question à Bryan..."}
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && !isLoading && inputMessage.trim() && handleSendMessage()}
@@ -708,6 +752,11 @@ export default function EncyclopediaPage() {
                     <Send className="w-5 h-5" />
                   </Button>
                 </div>
+                {isListening && (
+                  <p className="mt-2 text-center text-sm text-red-500 font-medium animate-pulse">
+                    🎤 Écoute en cours… Parle clairement en français
+                  </p>
+                )}
               </div>
             </motion.div>
           </motion.div>
