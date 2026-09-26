@@ -96,6 +96,18 @@ const TABS = [
 ];
 
 function ReglesView() {
+  const defisInterieurs = [
+    { emoji: '⚡', titre: 'Énergie Renouvelable' },
+    { emoji: '💧', titre: 'Gestion de l\'Eau' },
+    { emoji: '🍽️', titre: 'Alimentation Durable' },
+    { emoji: '🚗', titre: 'Mobilité Verte' },
+  ];
+  const defisterrain = [
+    { emoji: '✈️', titre: 'Impact des Voyages', consigne: 'Photographiez un moyen de transport et calculez son empreinte carbone.' },
+    { emoji: '🛒', titre: 'Circuits Courts', consigne: 'Trouvez et photographiez un produit local ou issu d\'un circuit court.' },
+    { emoji: '♻️', titre: 'Économie Circulaire', consigne: 'Photographiez un objet recyclé ou réutilisé dans votre environnement.' },
+  ];
+
   return (
     <div className="space-y-4 text-sm text-white/80">
       <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-400/20">
@@ -106,21 +118,24 @@ function ReglesView() {
         <h3 className="font-bold text-blue-300 mb-2">🖥️ Défis Intérieurs (4 défis — 100 pts chacun)</h3>
         <p className="text-white/60 mb-2">Mini-jeux directement dans l'app :</p>
         <div className="grid grid-cols-2 gap-2">
-          {RALLYE_DEFIS.filter(d => d.mode === 'interieur').map(d => (
-            <div key={d.id} className="flex items-center gap-2 p-2 rounded-lg bg-white/5">
+          {defisInterieurs.map((d, i) => (
+            <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-white/5">
               <span>{d.emoji}</span><span className="text-xs">{d.titre}</span>
             </div>
           ))}
         </div>
       </div>
-      <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-400/20">
-        <h3 className="font-bold text-amber-300 mb-2">🌿 Défis Terrain (3 défis — 150 pts chacun)</h3>
+      <div className="p-4 rounded-2xl bg-green-500/10 border border-green-400/20">
+        <h3 className="font-bold text-green-300 mb-2">🌿 Défis Terrain (3 défis — 150 pts chacun)</h3>
         <p className="text-white/60 mb-2">Sortez dehors, photographiez des preuves réelles, l'enseignant valide :</p>
-        <div className="grid grid-cols-1 gap-2">
-          {RALLYE_DEFIS.filter(d => d.mode === 'terrain').map(d => (
-            <div key={d.id} className="flex items-center gap-2 p-2 rounded-lg bg-white/5">
-              <span>{d.emoji}</span>
-              <div><p className="text-xs font-bold">{d.titre}</p><p className="text-[10px] text-white/40">{d.consigne.slice(0, 60)}…</p></div>
+        <div className="space-y-2">
+          {defisterrain.map((d, i) => (
+            <div key={i} className="flex items-start gap-2 p-2 rounded-lg bg-white/5">
+              <span className="mt-0.5">{d.emoji}</span>
+              <div>
+                <p className="text-xs font-bold text-white">{d.titre}</p>
+                <p className="text-[11px] text-white/50">{d.consigne}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -137,7 +152,7 @@ function ReglesView() {
       <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
         <h3 className="font-bold text-white mb-2">🎒 Rôle des élèves</h3>
         <ol className="list-decimal list-inside space-y-1.5 text-white/70">
-          <li>S'identifier avec son numéro élève (TN-G… garçons, TN-F… filles) + code équipe</li>
+          <li>S'identifier avec son numéro élève + code équipe</li>
           <li>Alterner défis intérieurs (app) et terrain (photos)</li>
           <li>Les défis terrain = sortir dehors photographier des preuves réelles</li>
           <li>Collecter les 7 clés → assembler le code secret !</li>
@@ -217,7 +232,7 @@ export default function RallyeEcoSentinelles() {
             <button key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all border ${
-                activeTab === tab.id && tab.id !== 'regles'
+                activeTab === tab.id
                   ? 'bg-amber-500/20 border-amber-400/30 text-amber-300'
                   : 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white/70'
               }`}>
