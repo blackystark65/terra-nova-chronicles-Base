@@ -17,7 +17,7 @@ const NAV_ITEMS = [
   { name: 'Jeux', icon: Flame, path: 'Jeux' },
   { name: 'Micro-ferme', icon: Leaf, path: 'MicroFerme' },
   { name: 'Missions', icon: Flame, path: 'Missions' },
-  { name: 'Lecture', icon: BookOpen, path: null, externalUrl: 'https://librisclub.online/' },
+  { name: 'Lecture', icon: BookOpen, path: null, externalUrl: 'https://librisclub.online/', newTab: true },
   { name: 'Pollinisation', icon: Leaf, path: 'Pollinisation' },
   { name: 'Puzzle', icon: Trophy, path: 'Puzzle' },
   { name: 'Quiz', icon: Trophy, path: 'Quiz' },
@@ -145,7 +145,7 @@ export default function BiolumiHeader({ currentPage }) {
                   <React.Fragment key={item.name}>
                     {showSeparator && <div className="w-px h-5 bg-white/20 mx-1 self-center" />}
                     {item.externalUrl ? (
-                      <a href={item.externalUrl}>
+                      <a href={item.externalUrl} target={item.newTab ? '_blank' : undefined} rel={item.newTab ? 'noopener noreferrer' : undefined}>
                         <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}
                           className="group relative px-2 py-1.5 rounded-xl bg-blue-900/40 hover:bg-blue-800/60 border border-blue-500/30 hover:border-blue-400/60 transition-all duration-300">
                           <div className="relative flex items-center gap-1.5">
@@ -261,7 +261,7 @@ export default function BiolumiHeader({ currentPage }) {
                         </div>
                       )}
                       {item.externalUrl ? (
-                        <a href={item.externalUrl} onClick={() => setMobileMenuOpen(false)}>
+                        <a href={item.externalUrl} target={item.newTab ? '_blank' : undefined} rel={item.newTab ? 'noopener noreferrer' : undefined} onClick={() => setMobileMenuOpen(false)}>
                           <motion.div whileTap={{ scale: 0.95 }}
                             className="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-900/40 border border-blue-500/30 transition-all duration-300">
                             <Icon className="w-5 h-5 text-blue-300" />
