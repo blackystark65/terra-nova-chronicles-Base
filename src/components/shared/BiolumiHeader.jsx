@@ -17,7 +17,7 @@ const NAV_ITEMS = [
   { name: 'Jeux', icon: Flame, path: 'Jeux' },
   { name: 'Micro-ferme', icon: Leaf, path: 'MicroFerme' },
   { name: 'Missions', icon: Flame, path: 'Missions' },
-  { name: 'Permaculture', icon: Leaf, path: null, externalUrl: 'https://www.permaculturedurosey.org' },
+  { name: 'Lecture', icon: BookOpen, path: null, externalUrl: 'https://librisclub.online/' },
   { name: 'Pollinisation', icon: Leaf, path: 'Pollinisation' },
   { name: 'Puzzle', icon: Trophy, path: 'Puzzle' },
   { name: 'Quiz', icon: Trophy, path: 'Quiz' },
